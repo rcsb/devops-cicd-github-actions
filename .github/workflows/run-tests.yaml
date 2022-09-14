@@ -1,0 +1,15 @@
+on:
+  pull_request: {}
+
+jobs:
+  test:
+    runs-on: ["self-hosted","java"]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+          cache: 'maven'
+          overwrite-settings: false
+      - run: mvn test
