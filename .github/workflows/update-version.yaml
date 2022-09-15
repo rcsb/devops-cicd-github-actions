@@ -1,0 +1,36 @@
+name: Update Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      major:
+        description: 'Major version'
+        required: true
+      minor:
+        description: 'Minor version'
+        required: true
+      patch:
+        description: 'Patch version'
+        required: true
+
+jobs:
+  update-version:
+    env:
+      VERSION="${{ github.event.inputs.major }}.${{ github.event.inputs.minor }}.${{ github.event.inputs.patch }}"
+    runs-on:
+      - self-hosted
+      - java
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup git author information
+        run: |
+          git config user.name RCSBSystem
+          git config user.email it@rcsb.org
+      - name: Set version
+        run: mvn versions:set -DnewVersion=$VERSION
+      - name: Commit and tag new version
+        run: |
+          git add pom.xml
+          git commit -m "[actions] Updated version in pom.xml to $VERSION"
+          git tag $VERSION
+          git push --all
