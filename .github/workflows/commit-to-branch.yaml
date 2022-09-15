@@ -1,6 +1,8 @@
 name: Commit to Master Branch
 on:
-  push: ["master"]
+  push:
+    branches:
+      - "master"
   workflow_dispatch:
 
 jobs:
