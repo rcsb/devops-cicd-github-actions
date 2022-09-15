@@ -1,0 +1,24 @@
+name: Commit to Branch
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  prepare-for-release:
+    if: |
+      !contains(github.event.head_commit.message, '[test]')
+    runs-on:
+      - self-hosted
+      - java
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup git author information
+        run: |
+          git config user.name RCSBSystem
+          git config user.email it@rcsb.org
+      - name: Prepare Release
+        run: |
+          date > testfile.txt
+          git add testfile.txt
+          git commit -m "[test] Updated test file"
+          git push
