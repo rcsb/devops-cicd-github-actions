@@ -14,8 +14,8 @@ jobs:
       - java
     outputs:
       major: ${{ steps.major.outputs.major }}
-      minor: ${{ steps.step2.outputs.minor }}
-      patch: ${{ steps.step2.outputs.patch }}
+      minor: ${{ steps.minor.outputs.minor }}
+      patch: ${{ steps.patch.outputs.patch }}
     steps:
       - uses: actions/checkout@v3
       - id: major
