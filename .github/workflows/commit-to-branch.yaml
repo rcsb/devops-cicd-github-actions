@@ -26,10 +26,18 @@ jobs:
           echo ::set-output name=minor::$(mvn build-helper:parse-version help:evaluate -Dexpression=parsedVersion.minorVersion -q -DforceStdout)
       - id: patch
         run: |
-          echo ::set-output name=patch::$(mvn build-helper:parse-version help:evaluate -Dexpression=parsedVersion.incrementalVersion -q -DforceStdout)
+          echo ::set-output name=patch::$(mvn build-helper:parse-version help:evaluate -Dexpression=parsedVersion.nextIncrementalVersion -q -DforceStdout)
   echo-version:
     runs-on: ubuntu-latest
     needs: extract
     steps:
       - run: echo ${{needs.extract.outputs.major}}.${{needs.extract.outputs.minor}}.${{needs.extract.outputs.patch}}
-          
+  dispatch-update-version:
+    needs: extract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: benc-uk/workflow-dispatch@v1.1
+        with:
+          workflow: .github/workflows/update-version.yaml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          inputs: '{ "major": ${{needs.extract.outputs.major}}, "minor": ${{needs.extract.outputs.minor}}, "patch": ${{needs.extract.outputs.patch}}'
