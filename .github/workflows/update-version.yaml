@@ -13,10 +13,11 @@ on:
         description: 'Patch version'
         required: true
 
+env:
+  NEW_VERSION="${{ github.event.inputs.major }}.${{ github.event.inputs.minor }}.${{ github.event.inputs.patch }}"
+
 jobs:
   update-version:
-    env:
-      VERSION="${{ github.event.inputs.major }}.${{ github.event.inputs.minor }}.${{ github.event.inputs.patch }}"
     runs-on:
       - self-hosted
       - java
@@ -27,10 +28,10 @@ jobs:
           git config user.name RCSBSystem
           git config user.email it@rcsb.org
       - name: Set version
-        run: mvn versions:set -DnewVersion=$VERSION
+        run: mvn versions:set -DnewVersion=$NEW_VERSION
       - name: Commit and tag new version
         run: |
           git add pom.xml
-          git commit -m "[actions] Updated version in pom.xml to $VERSION"
+          git commit -m "[actions] Updated version in pom.xml to $NEW_VERSION"
           git tag $VERSION
           git push --all
