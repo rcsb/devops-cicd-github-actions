@@ -35,4 +35,13 @@ jobs:
           git add pom.xml
           git commit -m "[actions] Updated version in pom.xml to $NEW_VERSION"
           git tag $VERSION
-          git push --all
+      - name: Increment version
+        run: |
+          NEXT_PATCH=$(mvn build-helper:parse-version help:evaluate -Dexpression=parsedVersion.incrementalVersion -q -DforceStdout --no-transfer-progress)
+          mvn versions:set -DnewVersion="${{ github.event.inputs.major }}.${{ github.event.inputs.minor }}.$NEXT_PATCH-SNAPSHOT" -DallowSnapshots --no-transfer-progress
+      - name: Commit and tag new version
+        run: |
+          git add pom.xml
+          git commit -m "[actions] Next development cycle"
+      - name: Push back to GitHub
+        run: git push --all
