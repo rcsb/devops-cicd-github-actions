@@ -36,6 +36,7 @@ jobs:
     needs: extract
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - uses: benc-uk/workflow-dispatch@v1.1
         with:
           workflow: .github/workflows/update-version.yaml
