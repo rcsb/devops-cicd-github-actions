@@ -37,7 +37,7 @@ jobs:
           git tag $VERSION
       - name: Increment version
         run: |
-          NEXT_PATCH=$(mvn build-helper:parse-version help:evaluate -Dexpression=parsedVersion.incrementalVersion -q -DforceStdout --no-transfer-progress)
+          NEXT_PATCH=$(mvn build-helper:parse-version help:evaluate -Dexpression=parsedVersion.nextIncrementalVersion -q -DforceStdout --no-transfer-progress)
           mvn versions:set -DnewVersion="${{ github.event.inputs.major }}.${{ github.event.inputs.minor }}.$NEXT_PATCH-SNAPSHOT" -DallowSnapshots --no-transfer-progress
       - name: Commit and tag new version
         run: |
