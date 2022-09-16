@@ -20,6 +20,7 @@ jobs:
           mvn test --no-transfer-progress
 #TODO integration tests
   extract:
+    name: extract-version
     needs: test
     runs-on:
       - self-hosted
