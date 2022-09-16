@@ -65,3 +65,19 @@ jobs:
               { 
                 "tag": "${{needs.extract.outputs.major}}.${{needs.extract.outputs.minor}}.${{needs.extract.outputs.patch}}"
               }
+  dispatch-skaffold-deploy:
+    needs: dispatch-build-and-push-docker
+    runs-on:
+      - self-hosted
+      - skaffold
+    steps:
+      - uses: benc-uk/workflow-dispatch@v1.1
+        with:
+          workflow: Skaffold Deploy
+          #          workflow: .github/workflows/update-version.yaml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          inputs: |
+            { 
+              "tag": "${{needs.extract.outputs.major}}.${{needs.extract.outputs.minor}}.${{needs.extract.outputs.patch}}",
+              "namespace": "production"
+            }

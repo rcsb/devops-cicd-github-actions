@@ -1,0 +1,13 @@
+apiVersion: skaffold/v2beta29
+kind: Config
+metadata:
+  name: devops-test-cicd-java
+build:
+  artifacts:
+  - image: nexus3.rcsb.org/ingvord/dummy
+    jib:
+      project: org.rcsb:Dummy
+deploy:
+  kubectl:
+    manifests:
+    - k8s/dummy.yaml

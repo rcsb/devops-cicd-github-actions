@@ -1,0 +1,23 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dummy-deployment
+  #  namespace: default
+  labels:
+    app: dummy
+    environment: development
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: dummy
+  template:
+    metadata:
+      labels:
+        app: dummy
+    spec:
+      containers:
+        - name: dummy
+          image: nexus3.rcsb.org/ingvord/dummy:latest
+          imagePullPolicy: Always
