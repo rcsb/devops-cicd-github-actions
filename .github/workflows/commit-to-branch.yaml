@@ -40,4 +40,9 @@ jobs:
         with:
           workflow: .github/workflows/update-version.yaml
           token: ${{ secrets.GITHUB_TOKEN }}
-          inputs: '{ "major": ${{needs.extract.outputs.major}}, "minor": ${{needs.extract.outputs.minor}}, "patch": ${{needs.extract.outputs.patch}}'
+          inputs: |
+            { 
+              "major": ${{needs.extract.outputs.major}}, 
+              "minor": ${{needs.extract.outputs.minor}}, 
+              "patch": ${{needs.extract.outputs.patch}}
+            }
