@@ -8,7 +8,7 @@ jobs:
   test:
     if: |
       !contains(github.event.head_commit.message, '[actions]')
-    uses: rcsb/devops-test-cicd-java/.github/workflows/run-tests.yml@master
+    uses: rcsb/devops-test-cicd-java/.github/workflows/run-tests.yaml@master
 #TODO integration tests
   extract:
     name: extract-version
