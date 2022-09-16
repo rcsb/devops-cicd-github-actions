@@ -14,7 +14,7 @@ on:
         required: true
 
 env:
-  NEW_VERSION="${{ github.event.inputs.major }}.${{ github.event.inputs.minor }}.${{ github.event.inputs.patch }}"
+  NEW_VERSION: "${{ github.event.inputs.major }}.${{ github.event.inputs.minor }}.${{ github.event.inputs.patch }}"
 
 jobs:
   update-version:
