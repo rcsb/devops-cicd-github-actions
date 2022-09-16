@@ -4,11 +4,14 @@ on:
   workflow_call:
     inputs:
       tag:
+        type: string
         required: false
         default: latest
   workflow_dispatch:
     inputs:
       tag:
+        description: "Tag to be used as a docker image tag i.e. project version"
+        type: string
         required: false
         default: latest
 
