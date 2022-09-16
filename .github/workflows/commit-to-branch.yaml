@@ -52,3 +52,16 @@ jobs:
               "minor": "${{needs.extract.outputs.minor}}", 
               "patch": "${{needs.extract.outputs.patch}}"
             }
+  dispatch-build-and-push-docker:
+      needs: extract
+      runs-on: ubuntu-latest
+      steps:
+        - uses: benc-uk/workflow-dispatch@v1.1
+          with:
+            workflow: Build and Push Docker
+  #          workflow: .github/workflows/update-version.yaml
+            token: ${{ secrets.GITHUB_TOKEN }}
+            inputs: |
+              { 
+                "tag": "${{needs.extract.outputs.major}}.${{needs.extract.outputs.minor}}.${{needs.extract.outputs.patch}}"
+              }

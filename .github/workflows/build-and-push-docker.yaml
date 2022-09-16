@@ -1,0 +1,24 @@
+name: Build and Push Docker
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        required: false
+        default: latest
+  workflow_dispatch:
+    inputs:
+      tag:
+        required: false
+        default: latest
+
+jobs:
+  jib:
+    runs-on:
+      - self-hosted
+      - java
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and Push via jib
+        run: |
+          mvn package jib:build -Djib.to.tags=${{ github.event.inputs.tag }} --no-transfer-progress
