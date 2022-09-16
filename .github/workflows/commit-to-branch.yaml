@@ -6,18 +6,13 @@ on:
 
 jobs:
   test:
-    if: |
-      !contains(github.event.head_commit.message, '[actions]')
     runs-on:
       - self-hosted
       - java
+    if: |
+      !contains(github.event.head_commit.message, '[actions]')
     steps:
-      - uses: actions/checkout@v3
-      - run: |
-          java --version
-          mvn --version
-      - run: |
-          mvn test --no-transfer-progress
+      - uses: rcsb/devops-test-cicd-java/.github/workflows/run-tests.yml@master
 #TODO integration tests
   extract:
     name: extract-version
