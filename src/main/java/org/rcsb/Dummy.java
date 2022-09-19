@@ -20,7 +20,7 @@ public class Dummy {
                         Dummy.class.getResourceAsStream("/pom.properties")
             ));
         } catch (IOException ignored) {}
-        VERSION = pomProperties.getProperty("project.version", "UNKNOWN");
+        VERSION = pomProperties.getProperty("version", "UNKNOWN");
     }
 
     public static void main(String[] args) {
