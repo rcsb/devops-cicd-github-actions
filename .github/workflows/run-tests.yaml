@@ -13,3 +13,6 @@ jobs:
           java --version
           mvn --version
       - run: mvn test --no-transfer-progress
+      - name: Publish Test Report
+        if: ${{ always() }}
+        uses: scacap/action-surefire-report@v1
