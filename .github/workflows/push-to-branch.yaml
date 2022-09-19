@@ -10,6 +10,7 @@ jobs:
     #TODO create dedicated repo for re-usable workflows
     uses: rcsb/devops-test-cicd-java/.github/workflows/run-tests.yaml@master
   dispatch-build-and-push-docker:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: benc-uk/workflow-dispatch@v1.1
