@@ -20,5 +20,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           inputs: |
             { 
-              "tag": "${{ github.ref }}"
+              "tag": "${{ github.ref_name }}"
             }
