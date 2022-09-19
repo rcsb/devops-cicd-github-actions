@@ -1,4 +1,4 @@
-name: Commit to Master Branch
+name: Push to Master Branch
 on:
   push:
     branches:
