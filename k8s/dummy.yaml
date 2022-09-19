@@ -51,3 +51,5 @@ spec:
         - name: dummy
           image: nexus3.rcsb.org/ingvord/dummy:latest
           imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
