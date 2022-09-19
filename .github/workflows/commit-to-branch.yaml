@@ -37,49 +37,19 @@ jobs:
     needs: extract
     steps:
       - run: echo ${{needs.extract.outputs.major}}.${{needs.extract.outputs.minor}}.${{needs.extract.outputs.patch}}
-  dispatch-update-version:
+  dispatch-release:
     needs: extract
     runs-on: ubuntu-latest
     steps:
       - uses: benc-uk/workflow-dispatch@v1.1
         with:
-          workflow: Update Version
-#          workflow: .github/workflows/update-version.yaml
+          workflow: Release
+          #          workflow: .github/workflows/update-version.yaml
           token: ${{ secrets.GITHUB_TOKEN }}
           inputs: |
             { 
               "major": "${{needs.extract.outputs.major}}", 
               "minor": "${{needs.extract.outputs.minor}}", 
-              "patch": "${{needs.extract.outputs.patch}}"
-            }
-  dispatch-build-and-push-docker:
-      needs: extract
-      runs-on: ubuntu-latest
-      steps:
-        - uses: benc-uk/workflow-dispatch@v1.1
-          with:
-            workflow: Build and Push Docker
-  #          workflow: .github/workflows/update-version.yaml
-            token: ${{ secrets.GITHUB_TOKEN }}
-            inputs: |
-              { 
-                "tag": "${{needs.extract.outputs.major}}.${{needs.extract.outputs.minor}}.${{needs.extract.outputs.patch}}"
-              }
-  dispatch-skaffold-deploy:
-    needs:
-      - extract
-      - dispatch-build-and-push-docker
-    runs-on:
-      - self-hosted
-      - skaffold
-    steps:
-      - uses: benc-uk/workflow-dispatch@v1.1
-        with:
-          workflow: Skaffold Deploy
-          #          workflow: .github/workflows/update-version.yaml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          inputs: |
-            { 
-              "tag": "${{needs.extract.outputs.major}}.${{needs.extract.outputs.minor}}.${{needs.extract.outputs.patch}}",
-              "namespace": "production"
+              "patch": "${{needs.extract.outputs.patch}}",
+              "skip-tests" : true
             }

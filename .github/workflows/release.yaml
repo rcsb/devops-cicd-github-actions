@@ -1,0 +1,72 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      major:
+        description: 'Major version'
+        required: true
+      minor:
+        description: 'Minor version'
+        required: true
+      patch:
+        description: 'Patch version'
+        required: true
+      skip-tests:
+        description: 'Skip tests'
+        type: boolean
+        default: true
+        required: false
+      namespace:
+        description: 'K8s target namespaces'
+        default: "production"
+        required: false
+
+jobs:
+  run-tests:
+    if: ${{ github.event.inputs.skip-tests }}
+    uses: rcsb/devops-test-cicd-java/.github/workflows/run-tests.yaml@master
+  dispatch-update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: benc-uk/workflow-dispatch@v1.1
+        with:
+          workflow: Update Version
+          #          workflow: .github/workflows/update-version.yaml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          inputs: |
+            { 
+              "major": "${{github.event.inputs.major}}", 
+              "minor": "${{github.event.inputs.minor}}", 
+              "patch": "${{github.event.inputs.patch}}"
+            }
+  dispatch-build-and-push-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: benc-uk/workflow-dispatch@v1.1
+        with:
+          workflow: Build and Push Docker
+          #          workflow: .github/workflows/update-version.yaml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          inputs: |
+            { 
+              "tag": "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}"
+            }
+          wait-for-completion: true
+  dispatch-skaffold-deploy:
+    needs:
+      - dispatch-build-and-push-docker
+    runs-on:
+      - self-hosted
+      - skaffold
+    steps:
+      - uses: benc-uk/workflow-dispatch@v1.1
+        with:
+          workflow: Skaffold Deploy
+          #          workflow: .github/workflows/update-version.yaml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          inputs: |
+            { 
+              "tag": "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}",
+              "namespace": "${{github.event.inputs.namespace}}"
+            }
