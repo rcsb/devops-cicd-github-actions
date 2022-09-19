@@ -65,6 +65,11 @@
                 <artifactId>jib-maven-plugin</artifactId>
                 <version>3.3.0</version>
                 <configuration>
+                    <container>
+                        <ports>
+                            <port>8080</port>
+                        </ports>
+                    </container>
                     <to>
                         <image>nexus3.rcsb.org/ingvord/dummy</image>
                     </to>
