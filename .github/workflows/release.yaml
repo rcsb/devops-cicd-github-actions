@@ -24,7 +24,7 @@ on:
 
 jobs:
   run-tests:
-    if: ${{ !github.event.inputs.skip-tests }}
+    if: "!${{ github.event.inputs.skip-tests }}"
     uses: rcsb/devops-test-cicd-java/.github/workflows/run-tests.yaml@master
   dispatch-update-version:
     runs-on: ubuntu-latest
