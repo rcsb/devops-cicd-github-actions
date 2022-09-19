@@ -85,6 +85,22 @@
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <version>3.3.0</version>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>write-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <outputFile>${project.build.outputDirectory}/pom.properties</outputFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
