@@ -40,19 +40,10 @@ jobs:
               "minor": "${{github.event.inputs.minor}}", 
               "patch": "${{github.event.inputs.patch}}"
             }
-  dispatch-build-and-push-docker:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: benc-uk/workflow-dispatch@v1.1
-        with:
-          workflow: Build and Push Docker
-          #          workflow: .github/workflows/update-version.yaml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          inputs: |
-            { 
-              "tag": "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}"
-            }
-          wait-for-completion: true
+  call-build-and-push-docker:
+    uses: rcsb/devops-test-cicd-java/.github/workflows/build-and-push-docker.yaml@master
+    with:
+      tag: "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}"
   dispatch-skaffold-deploy-staging:
     needs:
       - dispatch-build-and-push-docker
