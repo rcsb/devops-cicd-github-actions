@@ -19,7 +19,8 @@ on:
         required: false
       namespace:
         description: 'K8s target namespaces'
-        required: true
+        default: "production"
+        required: false
 
 jobs:
   run-tests:
@@ -90,5 +91,5 @@ jobs:
           inputs: |
             { 
               "tag": "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}",
-              "namespace": "production"
+              "namespace": "${{ github.event.inputs.namespace}}"
             }
