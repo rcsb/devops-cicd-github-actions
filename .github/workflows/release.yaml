@@ -75,7 +75,7 @@ jobs:
       - dispatch-skaffold-deploy-staging
     runs-on: ubuntu-latest
     steps:
-      - test -e does_not_exists
+      - run: test -e does_not_exists
   dispatch-skaffold-deploy-production:
     needs:
       - dispatch-integration-tests
