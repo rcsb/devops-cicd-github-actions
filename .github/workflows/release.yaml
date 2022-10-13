@@ -46,7 +46,7 @@ jobs:
       tag: "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}"
   dispatch-skaffold-deploy-staging:
     needs:
-      - dispatch-build-and-push-docker
+      - call-build-and-push-docker
     runs-on:
       - self-hosted
       - skaffold
