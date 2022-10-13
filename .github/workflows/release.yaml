@@ -19,8 +19,7 @@ on:
         required: false
       namespace:
         description: 'K8s target namespaces'
-        default: "production"
-        required: false
+        required: true
 
 jobs:
   run-tests:
@@ -53,7 +52,7 @@ jobs:
               "tag": "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}"
             }
           wait-for-completion: true
-  dispatch-skaffold-deploy:
+  dispatch-skaffold-deploy-staging:
     needs:
       - dispatch-build-and-push-docker
     runs-on:
@@ -68,5 +67,28 @@ jobs:
           inputs: |
             { 
               "tag": "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}",
-              "namespace": "${{github.event.inputs.namespace}}"
+              "namespace": "staging"
+            }
+  dispatch-integration-tests:
+    needs:
+      - dispatch-skaffold-deploy-staging
+    runs-on: ubuntu-latest
+    steps:
+      - test -e does_not_exists
+  dispatch-skaffold-deploy-production:
+    needs:
+      - dispatch-integration-tests
+    runs-on:
+      - self-hosted
+      - skaffold
+    steps:
+      - uses: benc-uk/workflow-dispatch@v1.1
+        with:
+          workflow: Skaffold Deploy
+          #          workflow: .github/workflows/update-version.yaml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          inputs: |
+            { 
+              "tag": "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}",
+              "namespace": "production"
             }
