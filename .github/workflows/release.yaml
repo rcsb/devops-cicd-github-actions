@@ -44,43 +44,23 @@ jobs:
     uses: rcsb/devops-test-cicd-java/.github/workflows/build-and-push-docker.yaml@master
     with:
       tag: "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}"
-  dispatch-skaffold-deploy-staging:
+  call-skaffold-deploy-staging:
     needs:
       - call-build-and-push-docker
-    runs-on:
-      - self-hosted
-      - skaffold
-    steps:
-      - uses: benc-uk/workflow-dispatch@v1.1
-        with:
-          workflow: Skaffold Deploy
-          #          workflow: .github/workflows/update-version.yaml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          inputs: |
-            { 
-              "tag": "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}",
-              "namespace": "staging"
-            }
+    uses: rcsb/devops-test-cicd-java/.github/workflows/skaffold-deploy.yaml@master
+    with:
+      tag: "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}"
+      namespace: "staging"
   dispatch-integration-tests:
     needs:
-      - dispatch-skaffold-deploy-staging
+      - call-skaffold-deploy-staging
     runs-on: ubuntu-latest
     steps:
       - run: test true
-  dispatch-skaffold-deploy-production:
+  call-skaffold-deploy-production:
     needs:
       - dispatch-integration-tests
-    runs-on:
-      - self-hosted
-      - skaffold
-    steps:
-      - uses: benc-uk/workflow-dispatch@v1.1
-        with:
-          workflow: Skaffold Deploy
-          #          workflow: .github/workflows/update-version.yaml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          inputs: |
-            { 
-              "tag": "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}",
-              "namespace": "${{ github.event.inputs.namespace}}"
-            }
+    uses: rcsb/devops-test-cicd-java/.github/workflows/skaffold-deploy.yaml@master
+    with:
+      tag: "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}"
+      namespace: "${{ github.event.inputs.namespace}}"
