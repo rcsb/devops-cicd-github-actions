@@ -26,20 +26,8 @@ jobs:
   run-tests:
     if: "!${{ github.event.inputs.skip-tests }}"
     uses: rcsb/devops-test-cicd-java/.github/workflows/run-tests.yaml@master
-  dispatch-update-version:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: benc-uk/workflow-dispatch@v1.1
-        with:
-          workflow: Update Version
-          #          workflow: .github/workflows/update-version.yaml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          inputs: |
-            { 
-              "major": "${{github.event.inputs.major}}", 
-              "minor": "${{github.event.inputs.minor}}", 
-              "patch": "${{github.event.inputs.patch}}"
-            }
+  call-update-version:
+    uses: rcsb/devops-test-cicd-java/.github/workflows/update-version.yaml@master
   call-build-and-push-docker:
     uses: rcsb/devops-test-cicd-java/.github/workflows/build-and-push-docker.yaml@master
     with:
