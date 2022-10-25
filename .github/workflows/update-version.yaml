@@ -13,20 +13,7 @@ on:
         description: 'Patch version'
         required: true
 
-  workflow_call:
-    inputs:
-      major:
-        description: 'Major version'
-        type: "string"
-        required: true
-      minor:
-        description: 'Minor version'
-        type: "string"
-        required: true
-      patch:
-        description: 'Patch version'
-        type: "string"
-        required: true
+  workflow_call: {}
 
 env:
   NEW_VERSION: "${{ github.event.inputs.major }}.${{ github.event.inputs.minor }}.${{ github.event.inputs.patch }}"
