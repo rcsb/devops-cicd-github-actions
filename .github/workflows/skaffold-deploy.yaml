@@ -33,10 +33,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Skaffold Deploy from Dispatch
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          skaffold deploy --namespace=${{ github.event.inputs.namespace }} --tag=${{ github.event.inputs.tag }}
-      - name: Skaffold Deploy from Call
-        if: github.event_name == 'workflow_call'
         run: |
           skaffold deploy --namespace=${{ inputs.namespace }} --tag=${{ inputs.tag }}
