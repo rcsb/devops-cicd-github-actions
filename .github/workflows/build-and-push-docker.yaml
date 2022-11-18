@@ -15,6 +15,12 @@ jobs:
       - java
     steps:
       - uses: actions/checkout@v3
+      - name: Login to Nexus3
+        uses: docker/login-action@v2
+        with:
+          registry: nexus3.rcsb.org
+          username: gha-runner-docker
+          password: ${{ secrets.NEXUS3_PASSWORD }}
       - name: Build and Push via jib
         run: |
           mvn package jib:build -Djib.to.tags=${{ inputs.tag }} --no-transfer-progress -Dmaven.test.skip=true
