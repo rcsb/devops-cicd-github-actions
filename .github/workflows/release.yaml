@@ -32,7 +32,6 @@ jobs:
     uses: rcsb/devops-test-cicd-java/.github/workflows/build-and-push-docker.yaml@master
     with:
       tag: "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}"
-    secrets: inherit
   call-skaffold-deploy-staging:
     needs:
       - call-build-and-push-docker
