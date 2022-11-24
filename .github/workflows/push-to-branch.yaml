@@ -10,15 +10,7 @@ jobs:
   test:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/run-tests.yaml@master
   dispatch-build-and-push-docker:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: benc-uk/workflow-dispatch@v1.1
-        with:
-          workflow: Build and Push Docker
-          #          workflow: .github/workflows/update-version.yaml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          inputs: |
-            { 
-              "tag": "${{ github.ref_name }}"
-            }
+    call-build-and-push-docker:
+      uses: rcsb/devops-cicd-github-actions/.github/workflows/build-and-push-docker.yaml@master
+      with:
+        tag: "${{ github.ref_name }}"
