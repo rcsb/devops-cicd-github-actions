@@ -7,8 +7,7 @@ on:
 
 jobs:
   test:
-    #TODO create dedicated repo for re-usable workflows
-    uses: rcsb/devops-test-cicd-java/.github/workflows/run-tests.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/run-tests.yaml@master
   dispatch-build-and-push-docker:
     needs: test
     runs-on: ubuntu-latest
