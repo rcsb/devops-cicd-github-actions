@@ -4,7 +4,7 @@
 
     <groupId>org.rcsb</groupId>
     <artifactId>Dummy</artifactId>
-    <version>3.0.11</version>
+    <version>3.0.12-SNAPSHOT</version>
 
     <scm>
         <connection>scm:git:${project.scm.url}</connection>
