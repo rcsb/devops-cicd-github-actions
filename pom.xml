@@ -6,6 +6,10 @@
     <artifactId>Dummy</artifactId>
     <version>3.0.12-SNAPSHOT</version>
 
+    <properties>
+        <jib.target.namespace>${env.USER}</jib.target.namespace>
+    </properties>
+
     <scm>
         <connection>scm:git:${project.scm.url}</connection>
         <developerConnection>scm:git:${project.scm.url}</developerConnection>
@@ -77,7 +81,7 @@
                         </ports>
                     </container>
                     <to>
-                        <image>nexus3.rcsb.org/ingvord/dummy</image>
+                        <image>nexus3.rcsb.org/${jib.target.namespace}/dummy</image>
                     </to>
                 </configuration>
             </plugin>
