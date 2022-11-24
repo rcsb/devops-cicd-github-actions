@@ -21,6 +21,7 @@ on:
         description: 'K8s target namespaces'
         default: "production"
         required: false
+  workflow_call: {}
 
 jobs:
   run-tests:
