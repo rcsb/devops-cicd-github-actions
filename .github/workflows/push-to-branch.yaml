@@ -10,6 +10,7 @@ jobs:
   test:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/run-tests.yaml@master
   call-build-and-push-docker:
+    needs: test
     uses: rcsb/devops-cicd-github-actions/.github/workflows/build-and-push-docker.yaml@master
     with:
       tag: "${{ github.ref_name }}"
