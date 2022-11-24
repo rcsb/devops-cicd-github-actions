@@ -25,17 +25,17 @@ on:
 jobs:
   run-tests:
     if: "!${{ github.event.inputs.skip-tests }}"
-    uses: rcsb/devops-test-cicd-java/.github/workflows/run-tests.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/run-tests.yaml@master
   call-update-version:
-    uses: rcsb/devops-test-cicd-java/.github/workflows/update-version.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/update-version.yaml@master
   call-build-and-push-docker:
-    uses: rcsb/devops-test-cicd-java/.github/workflows/build-and-push-docker.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/build-and-push-docker.yaml@master
     with:
       tag: "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}"
   call-skaffold-deploy-staging:
     needs:
       - call-build-and-push-docker
-    uses: rcsb/devops-test-cicd-java/.github/workflows/skaffold-deploy.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/skaffold-deploy.yaml@master
     with:
       tag: "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}"
       namespace: "staging"
@@ -48,7 +48,7 @@ jobs:
   call-skaffold-deploy-production:
     needs:
       - dispatch-integration-tests
-    uses: rcsb/devops-test-cicd-java/.github/workflows/skaffold-deploy.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/skaffold-deploy.yaml@master
     with:
       tag: "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}"
       namespace: "${{ github.event.inputs.namespace}}"
