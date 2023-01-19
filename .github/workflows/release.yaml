@@ -17,10 +17,9 @@ on:
         type: boolean
         default: true
         required: false
-      namespace:
-        description: 'K8s target namespaces'
-        default: "production"
-        required: false
+      distribution:
+        description: 'buildlocker distribution name'
+        required: true
   workflow_call: {}
 
 jobs:
@@ -33,23 +32,9 @@ jobs:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/build-and-push-docker.yaml@master
     with:
       tag: "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}"
-  call-skaffold-deploy-staging:
+  call-deploy-to-buildloker:
     needs:
       - call-build-and-push-docker
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/skaffold-deploy.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildloker.yaml@RO3686
     with:
-      tag: "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}"
-      namespace: "staging"
-  dispatch-integration-tests:
-    needs:
-      - call-skaffold-deploy-staging
-    runs-on: ubuntu-latest
-    steps:
-      - run: test true
-  call-skaffold-deploy-production:
-    needs:
-      - dispatch-integration-tests
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/skaffold-deploy.yaml@master
-    with:
-      tag: "${{github.event.inputs.major}}.${{github.event.inputs.minor}}.${{github.event.inputs.patch}}"
-      namespace: "${{ github.event.inputs.namespace}}"
+      distribution: "${{github.event.inputs.distribution}}"

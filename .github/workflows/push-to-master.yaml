@@ -3,7 +3,11 @@ on:
   push:
     branches:
       - "master"
-  workflow_call: {}
+  workflow_call:
+    inputs:
+      distribution:
+        type: string
+        required: true
 
 jobs:
   test:
@@ -50,5 +54,6 @@ jobs:
               "major": "${{needs.extract.outputs.major}}", 
               "minor": "${{needs.extract.outputs.minor}}", 
               "patch": "${{needs.extract.outputs.patch}}",
+              "distribution": "${{ inputs.distribution }}"
               "skip-tests" : "true"
             }

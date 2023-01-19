@@ -1,0 +1,23 @@
+name: Deploy to Buildlocker
+
+on:
+  workflow_call:
+    inputs:
+      distribution:
+        type: string
+        required: true
+
+jobs:
+  jib:
+    runs-on:
+      - self-hosted
+      - java
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and Deploy to Buildlocker
+        run: |
+          mvn clean install --no-transfer-progress -Dmaven.test.skip=true
+          cd dist
+          tar -czvf ${{ inputs.distribution }}.tgz *.jar
+          test -e ${{ inputs.distribution }}.tgz
+          sshpass -p 3ffd8b48e7ed9f sftp transporter@bl-receive.rcsb.org:1-receive <<< $"put ${{ inputs.distribution }}.tgz"
