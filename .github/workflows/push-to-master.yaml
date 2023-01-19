@@ -54,6 +54,6 @@ jobs:
               "major": "${{needs.extract.outputs.major}}", 
               "minor": "${{needs.extract.outputs.minor}}", 
               "patch": "${{needs.extract.outputs.patch}}",
-              "distribution": "${{ inputs.distribution }}"
+              "distribution": "${{ inputs.distribution }}",
               "skip-tests" : "true"
             }
