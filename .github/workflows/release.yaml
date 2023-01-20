@@ -51,7 +51,7 @@ jobs:
       - run: test true
   call-skaffold-deploy-production:
     needs:
-      - dispatch-integration-tests
+      - call-integration-tests
     uses: rcsb/devops-cicd-github-actions/.github/workflows/skaffold-deploy.yaml@master
     with:
       tag: "${{ inputs.major }}.${{ inputs.minor }}.${{ inputs.patch }}"
