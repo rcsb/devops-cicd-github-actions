@@ -36,19 +36,11 @@ jobs:
     needs: extract
     steps:
       - run: echo ${{needs.extract.outputs.major}}.${{needs.extract.outputs.minor}}.${{needs.extract.outputs.patch}}
-  dispatch-release:
+  call-release:
     needs: extract
-    runs-on: ubuntu-latest
-    steps:
-      - uses: benc-uk/workflow-dispatch@v1.1
-        with:
-          workflow: Release
-          #          workflow: .github/workflows/update-version.yaml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          inputs: |
-            { 
-              "major": "${{needs.extract.outputs.major}}", 
-              "minor": "${{needs.extract.outputs.minor}}", 
-              "patch": "${{needs.extract.outputs.patch}}",
-              "skip-tests" : "true"
-            }
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/release.yaml@master
+    with:
+      major: "${{needs.extract.outputs.major}}"
+      minor: "${{needs.extract.outputs.minor}}"
+      patch: "${{needs.extract.outputs.patch}}"
+      skip-tests : "true"
