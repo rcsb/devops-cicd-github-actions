@@ -43,4 +43,4 @@ jobs:
       major: "${{needs.extract.outputs.major}}"
       minor: "${{needs.extract.outputs.minor}}"
       patch: "${{needs.extract.outputs.patch}}"
-      skip-tests : "true"
+      skip-tests : true
