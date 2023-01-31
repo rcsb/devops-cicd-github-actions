@@ -23,4 +23,4 @@ jobs:
           echo ${{ inputs.distribution }}
           tar -czvf ${{ inputs.distribution }}.tgz *.jar
           test -e ${{ inputs.distribution }}.tgz
-          sshpass -p 3ffd8b48e7ed9f sftp transporter@bl-receive.rcsb.org:1-receive <<< $"put ${{ inputs.distribution }}.tgz"
+          sshpass -p 3ffd8b48e7ed9f sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null transporter@bl-receive.rcsb.org:1-receive <<< $"put ${{ inputs.distribution }}.tgz"
