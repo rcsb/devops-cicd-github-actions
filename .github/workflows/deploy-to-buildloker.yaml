@@ -14,10 +14,13 @@ jobs:
       - java
     steps:
       - uses: actions/checkout@v3
-      - name: Build and Deploy to Buildlocker
+      - name: Build
         run: |
           mvn clean install --no-transfer-progress -Dmaven.test.skip=true
+      - name: Deploy to Buildlocker
+        run: |
           cd dist
+          echo ${{ inputs.distribution }}
           tar -czvf ${{ inputs.distribution }}.tgz *.jar
           test -e ${{ inputs.distribution }}.tgz
           sshpass -p 3ffd8b48e7ed9f sftp transporter@bl-receive.rcsb.org:1-receive <<< $"put ${{ inputs.distribution }}.tgz"
