@@ -36,12 +36,12 @@ jobs:
         run: |
           git add pom.xml
           git commit -m "[actions] Updated version in pom.xml to $NEW_VERSION"
-          git tag $VERSION
+          git tag $NEW_VERSION
       - name: Increment version
         run: |
           NEXT_PATCH=$(mvn build-helper:parse-version help:evaluate -Dexpression=parsedVersion.nextIncrementalVersion -q -DforceStdout --no-transfer-progress)
           mvn versions:set -DnewVersion="${{ github.event.inputs.major }}.${{ github.event.inputs.minor }}.$NEXT_PATCH-SNAPSHOT" -DallowSnapshots --no-transfer-progress
-      - name: Commit and tag new version
+      - name: Commit new version for next dev cycle
         run: |
           git add pom.xml
           git commit -m "[actions] Next development cycle"
