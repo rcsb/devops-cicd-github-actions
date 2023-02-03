@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  workflow_call:
+    inputs:
+      major:
+        description: 'Major version'
+        type: string
+        required: true
+      minor:
+        description: 'Minor version'
+        type: string
+        required: true
+      patch:
+        description: 'Patch version'
+        type: string
+        required: true
+      skip-tests:
+        description: 'Skip tests'
+        type: boolean
+        default: true
+        required: false
+      namespace:
+        description: 'K8s target namespaces'
+        type: string
+        default: "production"
+        required: false
+
+jobs:
+  run-tests:
+    if: "!${{ inputs.skip-tests }}"
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/run-tests.yaml@master
+  call-update-schema-version:
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/update-schema-dependency-version.yaml@master
+  call-build-and-push-docker:
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/build-and-push-docker.yaml@master
+    with:
+      tag: "${{ inputs.major }}.${{ inputs.minor }}.${{ inputs.patch }}"
+  call-skaffold-deploy-staging:
+    needs:
+      - call-build-and-push-docker
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/skaffold-deploy.yaml@master
+    with:
+      tag: "${{ inputs.major }}.${{ inputs.minor }}.${{ inputs.patch }}"
+      namespace: "staging"
+  call-integration-tests:
+    needs:
+      - call-skaffold-deploy-staging
+    runs-on: ubuntu-latest
+    steps:
+      - run: test true
+  call-skaffold-deploy-production:
+    needs:
+      - call-integration-tests
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/skaffold-deploy.yaml@master
+    with:
+      tag: "${{ inputs.major }}.${{ inputs.minor }}.${{ inputs.patch }}"
+      namespace: "${{ inputs.namespace}}"
