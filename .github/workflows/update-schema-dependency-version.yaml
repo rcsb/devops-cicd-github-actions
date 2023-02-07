@@ -1,21 +1,32 @@
-name: Update Version
+name: Update Schema Version
 
 on:
   workflow_call:
     inputs:
       major:
         description: 'Schema Major version'
+        type: string
         required: true
       minor:
         description: 'Schema Minor version'
+        type: string
         required: true
       patch:
         description: 'Schema Patch version'
+        type: string
+        required: true
+      downstream-repo-to-update:
+        description: 'The name of the downstream repository for which to update the schema version'
+        type: string
+        required: true
+      schema-property-name-in-repo:
+        description: 'The property name in the repos pom.xml for the schema version, e.g. rcsb.mojave.model.version'
+        type: string
         required: true
 
 
 env:
-  NEW_SCHEMA_VERSION: "${{ github.event.inputs.major }}.${{ github.event.inputs.minor }}.${{ github.event.inputs.patch }}"
+  NEW_SCHEMA_VERSION: "${{ inputs.major }}.${{ inputs.minor }}.${{ inputs.patch }}"
 
 jobs:
   update-version:
@@ -23,7 +34,11 @@ jobs:
       - self-hosted
       - java
     steps:
-      - uses: actions/checkout@v3
+      - name: Checking out ${{ inputs.downstream-repo-to-update }}
+        uses: actions/checkout@v3
+        with:
+          repository: rcsb/${{ inputs.downstream-repo-to-update }}
+          path: ${{ inputs.downstream-repo-to-update }}
       - name: Setup git author information
         run: |
           git config user.name RCSBSystem
@@ -31,7 +46,7 @@ jobs:
       - run: mvn --version
       - name: Set new schema dependency version
         run: |
-          mvn versions:set-property -Dproperty=rcsb.mojave.model.version -DnewVersion=$NEW_SCHEMA_VERSION -DgenerateBackupPoms=false
+          mvn versions:set-property -Dproperty=${{ inputs.schema-property-name-in-repo }} -DnewVersion=$NEW_SCHEMA_VERSION -DgenerateBackupPoms=false
       - name: Commit and tag
         run: |
           git add pom.xml
