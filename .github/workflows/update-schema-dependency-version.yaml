@@ -1,7 +1,7 @@
 name: Update Version
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       major:
         description: 'Schema Major version'
@@ -13,7 +13,6 @@ on:
         description: 'Schema Patch version'
         required: true
 
-  workflow_call: {}
 
 env:
   NEW_SCHEMA_VERSION: "${{ github.event.inputs.major }}.${{ github.event.inputs.minor }}.${{ github.event.inputs.patch }}"
@@ -30,23 +29,12 @@ jobs:
           git config user.name RCSBSystem
           git config user.email it@rcsb.org
       - run: mvn --version
-      - name: Set schema dependency version and increment patch version for release
+      - name: Set new schema dependency version
         run: |
           mvn versions:set-property -Dproperty=rcsb.mojave.model.version -DnewVersion=$NEW_SCHEMA_VERSION -DgenerateBackupPoms=false
-          NEXT_PATCH=$(mvn build-helper:parse-version help:evaluate -Dexpression=parsedVersion.nextIncrementalVersion -q -DforceStdout --no-transfer-progress)
-          mvn versions:set -DnewVersion="${{ github.event.inputs.major }}.${{ github.event.inputs.minor }}.$NEXT_PATCH" --no-transfer-progress
       - name: Commit and tag
         run: |
           git add pom.xml
-          git commit -m "[actions] Updated schema dependency version to $NEW_SCHEMA_VERSION and updated version to ${{ github.event.inputs.major }}.${{ github.event.inputs.minor }}.$NEXT_PATCH"
-          git tag ${{ github.event.inputs.major }}.${{ github.event.inputs.minor }}.$NEXT_PATCH
-      - name: Increment version
-        run: |
-          NEXT_PATCH=$(mvn build-helper:parse-version help:evaluate -Dexpression=parsedVersion.nextIncrementalVersion -q -DforceStdout --no-transfer-progress)
-          mvn versions:set -DnewVersion="${{ github.event.inputs.major }}.${{ github.event.inputs.minor }}.$NEXT_PATCH-SNAPSHOT" -DallowSnapshots --no-transfer-progress
-      - name: Commit new version for next dev cycle
-        run: |
-          git add pom.xml
-          git commit -m "[actions] Next development cycle"
+          git commit -m "[actions] Updated schema dependency version to $NEW_SCHEMA_VERSION"
       - name: Push back to GitHub
         run: git push --all
