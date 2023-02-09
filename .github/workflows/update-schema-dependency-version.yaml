@@ -50,6 +50,6 @@ jobs:
       - name: Commit and tag
         run: |
           git add pom.xml
-          git commit -m "[actions] Updated schema dependency version to $NEW_SCHEMA_VERSION"
+          git commit -m "[automatic-schema-release] Updated schema dependency version to $NEW_SCHEMA_VERSION"
       - name: Push back to GitHub
         run: git push --all
