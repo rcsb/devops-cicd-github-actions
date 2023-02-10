@@ -41,4 +41,4 @@ jobs:
           git commit -m "[automatic-schema-release] Updated schema dependency version to ${{ inputs.schema-version }}"
       - name: Push back to GitHub
         run: git push --all
-# TODO how about adding a commit with new dev cycle that bumps patch number? I'm not sure how that plays with push-to-master.yaml
+# from here push-to-master will take over: it will do the commits necessary for release and for next dev cycle
