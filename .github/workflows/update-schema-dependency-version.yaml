@@ -17,6 +17,7 @@ on:
         required: true
 
 # TODO get rid of echo in git push commands when ready to go to prod
+# NOTE the secret for PAT must be defined in the project where this script runs in (not in the project we are checking out)
 jobs:
   update-version:
     runs-on:
@@ -28,7 +29,6 @@ jobs:
         with:
           repository: rcsb/${{ inputs.downstream-repo-to-update }}
           path: ${{ inputs.downstream-repo-to-update }}
-          # NOTE the secret must be defined in the project where this script runs in (not in the project we are checking out)
           token: ${{ secrets.RCSBSYSTEMSPAT }}
       - name: Setup git author information
         run: |
