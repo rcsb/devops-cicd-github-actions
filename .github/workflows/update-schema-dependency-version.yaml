@@ -16,6 +16,7 @@ on:
         type: string
         required: true
 
+# TODO get rid of echo in git push commands when ready to go to prod
 jobs:
   update-version:
     runs-on:
@@ -29,16 +30,21 @@ jobs:
           path: ${{ inputs.downstream-repo-to-update }}
       - name: Setup git author information
         run: |
+          cd ${{ inputs.downstream-repo-to-update }}
           git config user.name RCSBSystem
           git config user.email it@rcsb.org
       - run: mvn --version
       - name: Set new schema dependency version
         run: |
+          cd ${{ inputs.downstream-repo-to-update }}
           mvn versions:set-property -Dproperty=${{ inputs.schema-property-name-in-repo }} -DnewVersion=${{ inputs.schema-version }} -DgenerateBackupPoms=false
       - name: Commit and tag
         run: |
+          cd ${{ inputs.downstream-repo-to-update }}
           git add pom.xml
           git commit -m "[automatic-schema-release] Updated schema dependency version to ${{ inputs.schema-version }}"
       - name: Push back to GitHub
-        run: git push --all
+        run: |
+          cd ${{ inputs.downstream-repo-to-update }}
+          echo "git push --all"
 # from here push-to-master will take over: it will do the commits necessary for release and for next dev cycle
