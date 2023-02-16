@@ -49,3 +49,4 @@ jobs:
       minor: "${{needs.extract.outputs.minor}}"
       patch: "${{needs.extract.outputs.patch}}"
       skip-tests : true
+      distribution: "${{ inputs.distribution }}"
