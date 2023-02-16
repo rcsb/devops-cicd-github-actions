@@ -8,7 +8,7 @@ on:
         required: true
 
 jobs:
-  jib:
+  deploy-build-locker:
     runs-on:
       - self-hosted
       - java
