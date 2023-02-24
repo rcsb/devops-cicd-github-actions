@@ -16,7 +16,7 @@ on:
   workflow_call: {}
 
 env:
-  NEW_VERSION: "${{ github.event.inputs.major }}.${{ github.event.inputs.minor }}.${{ github.event.inputs.patch }}"
+  NEW_VERSION: "${{ inputs.major }}.${{ inputs.minor }}.${{ inputs.patch }}"
 
 jobs:
   update-version:
@@ -24,6 +24,7 @@ jobs:
       - self-hosted
       - java
     steps:
+      - run: echo "NEW_VERSION=$NEW_VERSION"
       - uses: actions/checkout@v3
       - name: Setup git author information
         run: |
