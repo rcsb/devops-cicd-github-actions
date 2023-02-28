@@ -19,7 +19,7 @@ jobs:
           mvn clean install --no-transfer-progress -Dmaven.test.skip=true
       - name: Deploy to Buildlocker
         run: |
-          cd dist
+          cd target
           echo ${{ inputs.distribution }}
           tar -czvf ${{ inputs.distribution }}.tgz *.jar
           test -e ${{ inputs.distribution }}.tgz
