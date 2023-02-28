@@ -43,7 +43,7 @@ jobs:
       - run: echo ${{needs.extract.outputs.major}}.${{needs.extract.outputs.minor}}.${{needs.extract.outputs.patch}}
   call-release:
     needs: extract
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/release.yaml@RO3686
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/release.yaml@master
     with:
       major: "${{needs.extract.outputs.major}}"
       minor: "${{needs.extract.outputs.minor}}"
