@@ -35,7 +35,7 @@ jobs:
         run: mvn versions:set -DnewVersion=$NEW_VERSION --no-transfer-progress
       - name: Commit and tag new version
         run: |
-          git add pom.xml
+          git add $(find . -name "pom.xml")
           git commit -m "[actions] Updated version in pom.xml to $NEW_VERSION"
           git tag $NEW_VERSION
       - name: Increment version
@@ -44,7 +44,7 @@ jobs:
           mvn versions:set -DnewVersion="${{ github.event.inputs.major }}.${{ github.event.inputs.minor }}.$NEXT_PATCH-SNAPSHOT" -DallowSnapshots --no-transfer-progress
       - name: Commit new version for next dev cycle
         run: |
-          git add pom.xml
+          git add $(find . -name "pom.xml")
           git commit -m "[actions] Next development cycle"
       - name: Push back to GitHub
         run: git push --all
