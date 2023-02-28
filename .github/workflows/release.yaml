@@ -31,6 +31,10 @@ jobs:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/run-tests.yaml@master
   call-update-version:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/update-version.yaml@master
+    with:
+      major: "${{ inputs.major }}"
+      minor: "${{ inputs.minor }}"
+      patch: "${{ inputs.patch }}"
   call-build-and-push-docker:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/build-and-push-docker.yaml@master
     with:
