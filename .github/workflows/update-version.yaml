@@ -17,12 +17,15 @@ on:
     inputs:
       major:
         description: 'Major version'
+        type: string
         required: true
       minor:
         description: 'Minor version'
+        type: string
         required: true
       patch:
         description: 'Patch version'
+        type: string
         required: true
 
 env:
