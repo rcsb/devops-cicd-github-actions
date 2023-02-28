@@ -60,4 +60,6 @@ jobs:
           git add $(find . -name "pom.xml")
           git commit -m "[actions] Next development cycle"
       - name: Push back to GitHub
-        run: git push --all
+        run: |
+          git push --all
+          git push origin $NEW_VERSION
