@@ -44,4 +44,4 @@ jobs:
       - call-build-and-push-docker
     uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildloker.yaml@RO3686
     with:
-      distribution: "${{github.event.inputs.distribution}}"
+      distribution: "${{ inputs.distribution }}"
