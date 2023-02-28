@@ -1,0 +1,26 @@
+name: Deploy to Buildlocker
+
+on:
+  workflow_call:
+    inputs:
+      distribution:
+        type: string
+        required: true
+
+jobs:
+  deploy-build-locker:
+    runs-on:
+      - self-hosted
+      - java
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+        run: |
+          mvn clean install --no-transfer-progress -Dmaven.test.skip=true
+      - name: Deploy to Buildlocker
+        run: |
+          cd target
+          echo ${{ inputs.distribution }}
+          tar -czvf ${{ inputs.distribution }}.tgz *.jar
+          test -e ${{ inputs.distribution }}.tgz
+          sshpass -p $(cat ~/.secrets/buildlocker_transporter_pw.txt) sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null transporter@bl-receive.rcsb.org:1-receive <<< $"put ${{ inputs.distribution }}.tgz"

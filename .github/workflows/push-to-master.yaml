@@ -4,7 +4,11 @@ on:
     branches:
       - "master"
       - "main"
-  workflow_call: {}
+  workflow_call:
+    inputs:
+      distribution:
+        type: string
+        required: true
 
 jobs:
   test:
@@ -39,9 +43,10 @@ jobs:
       - run: echo ${{needs.extract.outputs.major}}.${{needs.extract.outputs.minor}}.${{needs.extract.outputs.patch}}
   call-release:
     needs: extract
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/release.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/release.yaml@RO3686
     with:
       major: "${{needs.extract.outputs.major}}"
       minor: "${{needs.extract.outputs.minor}}"
       patch: "${{needs.extract.outputs.patch}}"
       skip-tests : true
+      distribution: "${{ inputs.distribution }}"
