@@ -9,6 +9,10 @@ on:
       distribution:
         type: string
         required: true
+      type:
+        type: string
+        default: "jar"
+        required: true
 
 jobs:
   test:
@@ -50,3 +54,4 @@ jobs:
       patch: "${{needs.extract.outputs.patch}}"
       skip-tests : true
       distribution: "${{ inputs.distribution }}"
+      type: "${{ inputs.type }}"

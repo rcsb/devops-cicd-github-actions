@@ -24,6 +24,10 @@ on:
         description: 'buildlocker distribution name'
         type: string
         required: true
+      type:
+        description: 'buildlocker distribution type [war|jar*]'
+        type: string
+        required: true
 
 jobs:
   run-tests:
@@ -45,3 +49,4 @@ jobs:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildloker.yaml@master
     with:
       distribution: "${{ inputs.distribution }}"
+      type: "${{ inputs.type }}"

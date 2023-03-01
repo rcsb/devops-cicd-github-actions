@@ -6,6 +6,9 @@ on:
       distribution:
         type: string
         required: true
+      type:
+        type: string
+        required: true
 
 jobs:
   deploy-build-locker:
@@ -21,6 +24,6 @@ jobs:
         run: |
           cd target
           echo ${{ inputs.distribution }}
-          tar -czvf ${{ inputs.distribution }}.tgz *.jar
+          tar -czvf ${{ inputs.distribution }}.tgz *.${{ inputs.type }}
           test -e ${{ inputs.distribution }}.tgz
           sshpass -p $(cat ~/.secrets/buildlocker_transporter_pw.txt) sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null transporter@bl-receive.rcsb.org:1-receive <<< $"put ${{ inputs.distribution }}.tgz"
