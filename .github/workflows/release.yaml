@@ -27,7 +27,7 @@ on:
       type:
         description: 'buildlocker distribution type [war|jar*]'
         type: string
-        required: true
+        required: false
 
 jobs:
   run-tests:
