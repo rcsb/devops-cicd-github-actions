@@ -31,7 +31,7 @@ on:
 
 jobs:
   run-tests:
-    if: !inputs.skip-tests
+    if: inputs.skip-tests != true
     uses: rcsb/devops-cicd-github-actions/.github/workflows/run-tests.yaml@master
   call-update-version:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/update-version.yaml@master
