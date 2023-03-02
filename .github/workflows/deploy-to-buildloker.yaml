@@ -12,7 +12,7 @@ on:
 
 jobs:
   deploy-build-locker-jar:
-    if: ${{ inputs.type }}=="jar"
+    if: ${{ inputs.type =="jar" }}
     runs-on:
       - self-hosted
       - java
@@ -28,7 +28,7 @@ jobs:
           test -e ${{ inputs.distribution }}.tgz
           sshpass -p $(cat ~/.secrets/buildlocker_transporter_pw.txt) sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null transporter@bl-receive.rcsb.org:1-receive <<< $"put ${{ inputs.distribution }}.tgz"
   deploy-build-locker-war:
-    if: ${{ inputs.type }}=="war"
+    if: ${{ inputs.type =="war" }}
     runs-on:
       - self-hosted
       - java
@@ -40,5 +40,6 @@ jobs:
       - name: Deploy to Buildlocker
         run: |
           cd target
+          mv *.war ${{ inputs.distribution }}.war
           test -e ${{ inputs.distribution }}.war
           sshpass -p $(cat ~/.secrets/buildlocker_transporter_pw.txt) sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null transporter@bl-receive.rcsb.org:1-receive <<< $"put ${{ inputs.distribution }}.war"
