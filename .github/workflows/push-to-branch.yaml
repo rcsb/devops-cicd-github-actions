@@ -7,6 +7,10 @@ on:
       - "main"
   workflow_call: {}
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/run-tests.yaml@master
