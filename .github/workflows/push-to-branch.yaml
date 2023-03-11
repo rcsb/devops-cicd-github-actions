@@ -5,7 +5,15 @@ on:
     branches-ignore:
       - "master"
       - "main"
-  workflow_call: {}
+  workflow_call:
+    inputs:
+      distribution:
+        type: string
+        required: true
+      type:
+        type: string
+        default: "jar"
+        required: false
 
 concurrency:
   group: ${{ github.ref }}
@@ -19,3 +27,9 @@ jobs:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/build-and-push-docker.yaml@master
     with:
       tag: "${{ github.ref_name }}"
+  call-deploy-to-buildlocker:
+    needs: tst
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker.yaml@master
+    with:
+      distribution: ${{ inputs.distribution }}
+      type: ${{ inputs.type }}
