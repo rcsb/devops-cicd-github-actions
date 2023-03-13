@@ -28,7 +28,7 @@ jobs:
     with:
       tag: "${{ github.ref_name }}"
   call-deploy-to-buildlocker:
-    needs: tst
+    needs: test
     uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker.yaml@master
     with:
       distribution: ${{ inputs.distribution }}
