@@ -1,6 +1,10 @@
 name: Publish package to the Internal Maven Repository
 on:
-  push:
+  workflow_call:
+    inputs:
+      distribution:
+        type: string
+        required: true
 
 jobs:
   publish:
