@@ -1,0 +1,31 @@
+name: Publish package to the Internal Maven Repository
+on:
+  release:
+    types: [created]
+  workflow_call:
+    inputs:
+      distribution:
+        type: string
+        required: true
+      type:
+        type: string
+        required: false
+
+jobs:
+  publish:
+    runs-on:
+      - self-hosted
+      - ubuntu-20.04
+    steps:
+      - name: Checkout branch
+      - uses: actions/checkout@v3
+
+      - name: Configure repository
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          server-id: releases
+
+      - name: Publish package
+        run: mvn --batch-mode --errors -U clean deploy
