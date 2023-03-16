@@ -2,6 +2,11 @@ name: Build and Deploy Node
 
 on:
   workflow_call:
+    inputs:
+      distribution:
+        required: true
+      branch:
+        required: true
 
 jobs:
   build:
@@ -11,11 +16,22 @@ jobs:
       - ubuntu-20.04
 
     steps:
+      - name: Checkout code
       - uses: actions/checkout@v3
-      - name: Use Node 16
+
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: '16'
           cache: 'npm'
+
+      - name: Build
       - run: npm ci
       - run: npm run build --if-present
+
+      - name: Deploy to Buildlocker
+        run: |
+          cd target
+          tar -czf ${{ inputs.distribution }}-${{ inputs.branch }}.tgz *
+          test -e ${{ inputs.distribution }}-${{ inputs.branch }}.tgz
+          sshpass -p $(cat ~/.secrets/buildlocker_transporter_pw.txt) sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null transporter@bl-receive.rcsb.org:1-receive <<< $"put ${{ inputs.distribution }}-${{ inputs.branch }}.tgz"
