@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker.yaml@master
     with:
       distribution: ${{ inputs.distribution }}
       branch: ${{ inputs.branch }}
