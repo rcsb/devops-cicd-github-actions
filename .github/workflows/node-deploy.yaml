@@ -12,7 +12,6 @@ on:
 
 jobs:
   build:
-  - name: Build and Deploy to Buildlocker
     uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker@master
     with:
       distribution: ${{ inputs.distribution }}
