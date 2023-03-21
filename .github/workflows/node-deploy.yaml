@@ -1,0 +1,26 @@
+name: Build and Deploy Node
+
+on:
+  workflow_call:
+    inputs:
+      distribution:
+        type: string
+        required: true
+      branch:
+        type: string
+        required: true
+
+jobs:
+  build:
+
+    runs-on:
+      - self-hosted
+      - dind
+
+    steps:
+      - name: Build and Deploy to Buildlocker
+        uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker@master
+        with:
+          distribution: ${{ inputs.distribution }}
+          branch: ${{ inputs.branch }}
+          type: node
