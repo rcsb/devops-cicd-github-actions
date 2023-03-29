@@ -13,6 +13,6 @@ jobs:
         uses: cypress-io/github-action@v5.6.1
 
       - name: Build and test
-          run: |
-            npm ci
-            npm run runheadless
+        run: |
+          npm ci
+          npm run runheadless
