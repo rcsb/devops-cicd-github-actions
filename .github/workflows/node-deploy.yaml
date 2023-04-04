@@ -11,15 +11,15 @@ on:
         required: true
 
 jobs:
-  cypress-test:
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/cypress.yaml@dev-jh-node
+#  cypress-test:
+#    uses: rcsb/devops-cicd-github-actions/.github/workflows/cypress.yaml@dev-jh-node
 
-#  build-and-push-to-buildlocker:
-#    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker.yaml@master
-#    with:
-#      distribution: ${{ inputs.distribution }}
-#      branch: ${{ inputs.branch }}
-#      type: node
+  build-and-push-to-buildlocker:
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker.yaml@master
+    with:
+      distribution: ${{ inputs.distribution }}
+      branch: ${{ inputs.branch }}
+      type: node
 
 #  build-and-push-docker-images:
 #    runs-on: ["self-hosted","node"]
