@@ -15,7 +15,7 @@ jobs:
 #    uses: rcsb/devops-cicd-github-actions/.github/workflows/cypress.yaml@dev-jh-node
 
   build-and-push-to-buildlocker:
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker.yaml@dev-jh-node
     with:
       distribution: ${{ inputs.distribution }}
       branch: ${{ inputs.branch }}
