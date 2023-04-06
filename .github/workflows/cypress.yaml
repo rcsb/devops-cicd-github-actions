@@ -6,6 +6,9 @@ on:
       branch:
         type: string
         required: true
+      type:
+        type: string
+        required: true
 
 jobs:
   cypress-test:
@@ -23,4 +26,8 @@ jobs:
           SIERRA_CONFIG: https://cdn.rcsb.org/config/c5aecb46a9fe2698498ed4d1ab1925e9a8fef7f5/profiles/parks/sierra/sierra-base.app.json,https://cdn.rcsb.org/config/c5aecb46a9fe2698498ed4d1ab1925e9a8fef7f5/profiles/parks/sierra/branch/sierra-${{ inputs.branch }}.app.json
       - name: Cypress test
         run: |
-          npm run runheadless
+          if [[ ${{ inputs.type }} == 'push' ]]; then
+            npm run runheadless
+          elif [[ ${{ inputs.type }} == 'nightly' ]]; then
+            npm run runnightly
+          fi
