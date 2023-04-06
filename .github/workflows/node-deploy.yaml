@@ -12,7 +12,10 @@ on:
 
 jobs:
   cypress-test:
+    if: ${{ inputs.distribution =='sierra' }}
     uses: rcsb/devops-cicd-github-actions/.github/workflows/cypress.yaml@dev-jh-node
+    with:
+      branch: ${{ inputs.branch }}
 
 #  build-and-push-to-buildlocker:
 #    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker.yaml@dev-jh-node
