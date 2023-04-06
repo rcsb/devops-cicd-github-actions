@@ -9,6 +9,7 @@ on:
       type:
         type: string
         required: true
+  workflow_dispatch:
 
 jobs:
   cypress-test:
