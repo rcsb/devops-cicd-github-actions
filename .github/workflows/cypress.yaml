@@ -2,6 +2,7 @@ name: Cypress UI Test
 
 on:
   workflow_call:
+    inputs:
       branch:
         type: string
         required: true
