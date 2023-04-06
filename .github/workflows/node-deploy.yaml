@@ -9,6 +9,9 @@ on:
       branch:
         type: string
         required: true
+      type:
+        type: string
+        required: false
 
 jobs:
   cypress-test:
@@ -16,6 +19,7 @@ jobs:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/cypress.yaml@dev-jh-node
     with:
       branch: ${{ inputs.branch }}
+      type: ${{ inputs.type }}
 
 #  build-and-push-to-buildlocker:
 #    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker.yaml@dev-jh-node
