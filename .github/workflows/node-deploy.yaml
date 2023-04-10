@@ -38,11 +38,8 @@ jobs:
         run: |
           npm ci
           npm run build --if-present
-          which git
-          echo $PATH
+          docker image ls harbor.devops.k8s.rcsb.org/devops
       # Login to RCSB Harbor registry is setup within the GitHub Actions runner environment
-      #- name: Set up Docker Buildx
-      #  uses: docker/setup-buildx-action@v2
       - name: Docker image metadata
         id: meta
         uses: docker/metadata-action@v4
@@ -57,7 +54,7 @@ jobs:
       - name: Build and Push Images - ${{ inputs.distribution }}
         uses: docker/build-push-action@v3
         with:
-          context: "{{defaultContext}}:${{ inputs.distribution }}"
+          context: .
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
