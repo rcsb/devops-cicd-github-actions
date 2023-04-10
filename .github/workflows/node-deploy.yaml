@@ -31,7 +31,7 @@ jobs:
 
   build-and-push-docker-images:
     needs: cypress-test
-    runs-on: ["self-hosted","node"]
+    runs-on: ["self-hosted","test-node"]
     steps:
       - uses: actions/checkout@v3
       - name: Build
