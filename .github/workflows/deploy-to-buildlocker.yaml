@@ -62,4 +62,4 @@ jobs:
         run: |
           tar -czf ${{ inputs.distribution }}-${{ inputs.branch }}.tgz *
           test -e ${{ inputs.distribution }}-${{ inputs.branch }}.tgz
-          /usr/bin/sshpass -p $(cat /home/runner/.secrets/buildlocker_transporter_pw.txt) sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null transporter@bl-receive.rcsb.org:1-receive <<< $"put ${{ inputs.distribution }}-${{ inputs.branch }}.tgz"
+          /usr/bin/sshpass -p $(cat ~/.secrets/buildlocker_transporter_pw.txt) sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null transporter@bl-receive.rcsb.org:1-receive <<< $"put ${{ inputs.distribution }}-${{ inputs.branch }}.tgz"

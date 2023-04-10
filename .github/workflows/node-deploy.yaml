@@ -9,10 +9,21 @@ on:
       branch:
         type: string
         required: true
+      type:
+        type: string
+        required: false
 
 jobs:
-  build:
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker.yaml@master
+  cypress-test:
+    if: ${{ inputs.distribution =='sierra' }}
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/cypress.yaml@dev-jh-node
+    with:
+      branch: ${{ inputs.branch }}
+      type: ${{ inputs.type }}
+
+  build-and-push-to-buildlocker:
+    needs: cypress-test
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker.yaml@dev-jh-node
     with:
       distribution: ${{ inputs.distribution }}
       branch: ${{ inputs.branch }}
