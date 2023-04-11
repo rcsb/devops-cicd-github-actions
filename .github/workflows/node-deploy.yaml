@@ -43,14 +43,14 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-#          images: harbor.devops.k8s.rcsb.org/rcsb/rcsb-${{ inputs.distribution }}
+          images: harbor.devops.k8s.rcsb.org/rcsb/rcsb-${{ inputs.distribution }}
           tags: |
-            #setlatesttagfordefaultbranch
+            #set latest tag for default branch
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=branch
             type=ref,event=tag
             type=ref,event=pr
-      - name: Build and PushImages - ${{ inputs.distribution }}
+      - name: Build and Push Images - ${{ inputs.distribution }}
         uses: docker/build-push-action@v3
         with:
           context: .
