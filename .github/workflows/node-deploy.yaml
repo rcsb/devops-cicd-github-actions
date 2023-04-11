@@ -43,7 +43,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: harbor.devops.k8s.rcsb.org/rcsb/rcsb-${{ inputs.distribution }}
+#          images: harbor.devops.k8s.rcsb.org/rcsb/rcsb-${{ inputs.distribution }}
           tags: |
             #setlatesttagfordefaultbranch
             type=raw,value=latest,enable={{is_default_branch}}
