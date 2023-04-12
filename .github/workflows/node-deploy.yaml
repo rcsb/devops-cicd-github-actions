@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build
         run: |
-          npm  ci
+          npm ci
           npm run build --if-present
        #LogintoRCSBHarborregistryissetupwithintheGitHubActionsrunnerenvironment
       - name: Docker image metadata
@@ -45,8 +45,8 @@ jobs:
         with:
           images: harbor.devops.k8s.rcsb.org/rcsb/rcsb-${{ inputs.distribution }}
           tags: |
-            #set latest tag for default branch
-            type=raw,value=latest,enable={{is_default_branch}}
+            #set latest tag for production branch
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'production') }}
             type=ref,event=branch
             type=ref,event=tag
             type=ref,event=pr
@@ -54,6 +54,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          push: ${{ github.event_name!='pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
