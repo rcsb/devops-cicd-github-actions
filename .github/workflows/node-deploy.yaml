@@ -14,24 +14,15 @@ on:
         required: false
 
 jobs:
-  cypress-test:
-    if: ${{ inputs.distribution =='sierra' }}
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/cypress.yaml@dev-jh-node
-    with:
-      branch: ${{ inputs.branch }}
-      type: ${{ inputs.type }}
-
-  build-and-push-to-buildlocker:
-    needs: cypress-test
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker.yaml@dev-jh-node
+  build-and-push-node-to-buildlocker:
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker.yaml@master
     with:
       distribution: ${{ inputs.distribution }}
       branch: ${{ inputs.branch }}
       type: node
 
-  build-and-push-docker-images:
-    needs: cypress-test
-    runs-on: ["self-hosted","test-node"]
+  build-and-push-node-docker-images:
+    runs-on: ["self-hosted","node"]
     steps:
       - uses: actions/checkout@v3
       - name: Build
