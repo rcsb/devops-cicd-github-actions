@@ -14,15 +14,7 @@ on:
         required: false
 
 jobs:
-  cypress-test:
-    if: ${{ inputs.distribution =='sierra' }}
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/cypress.yaml@master
-    with:
-      branch: ${{ inputs.branch }}
-      type: ${{ inputs.type }}
-
   build-and-push-to-buildlocker:
-    needs: cypress-test
     uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker.yaml@master
     with:
       distribution: ${{ inputs.distribution }}
