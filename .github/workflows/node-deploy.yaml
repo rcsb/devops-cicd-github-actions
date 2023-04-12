@@ -55,3 +55,4 @@ jobs:
         with:
           context: .
           tags: ${{ steps.meta.outputs.tags }}
+          build-args: BRANCH_NAME=${{ inputs.branch }}
