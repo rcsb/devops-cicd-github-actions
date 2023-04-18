@@ -15,7 +15,7 @@ on:
 
 jobs:
   build-and-push-node-to-buildlocker:
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker.yaml@dev-jh-node
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker.yaml@master
     with:
       distribution: ${{ inputs.distribution }}
       branch: ${{ inputs.branch }}
@@ -29,7 +29,7 @@ jobs:
         run: |
           npm ci
           npm run build --if-present
-       #LogintoRCSBHarborregistryissetupwithintheGitHubActionsrunnerenvironment
+       #Login to RCSB Harbor registry is set up within the GitHub Actions runner environment
       - name: Docker image metadata
         id: meta
         uses: docker/metadata-action@v4
