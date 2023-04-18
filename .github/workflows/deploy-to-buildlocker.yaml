@@ -60,7 +60,7 @@ jobs:
           npm run build --if-present
       - name: Convert Branch to Lowercase
         id: convert_to_lower
-        uses: Entepotenz/change-string-case-action@v1
+        uses: Entepotenz/change-string-case-action-min-dependencies@v1
         with:
           string: ${{ inputs.branch }}
       - name: Deploy to Buildlocker
