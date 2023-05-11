@@ -35,7 +35,7 @@ jobs:
       - name: Cypress test
         run: |
           if [[ ${{ inputs.type }} == 'push' ]]; then
-            npm run runheadless
+            npm run runheadless -- --browser chrome
           elif [[ ${{ inputs.type }} == 'nightly' ]]; then
             npm run runnightly
           fi
