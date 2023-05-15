@@ -33,3 +33,9 @@ jobs:
     with:
       distribution: ${{ inputs.distribution }}
       type: ${{ inputs.type }}
+  call-skaffold-deploy:
+    needs: call-build-and-push-docker
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/skaffold-deploy.yaml@master
+    with:
+      namespace: ${{ inputs.namespace }}
+
