@@ -20,3 +20,31 @@ jobs:
       distribution: ${{ inputs.distribution }}
       branch: ${{ inputs.branch }}
       type: node
+
+  build-and-push-node-docker-images:
+    runs-on: ["self-hosted","node"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+        run: |
+          npm ci
+          npm run build --if-present
+      #LogintoRCSBHarborregistryissetupwithintheGitHubActionsrunnerenvironment
+      - name: Docker image metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: harbor.devops.k8s.rcsb.org/rcsb/rcsb-${{ inputs.distribution }}
+          tags: |
+            #set latest tag for production branch
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'production') }}
+            type=ref,event=branch
+            type=ref,event=tag
+            type=ref,event=pr
+      - name: Build and Push Images - ${{ inputs.distribution }}
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          build-args: BRANCH_NAME=${{ inputs.branch }}
