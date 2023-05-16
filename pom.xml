@@ -4,7 +4,7 @@
 
     <groupId>org.rcsb</groupId>
     <artifactId>Dummy</artifactId>
-    <version>3.0.30-SNAPSHOT</version>
+    <version>3.0.30</version>
 
     <properties>
         <jib.target.namespace>${env.USER}</jib.target.namespace>
