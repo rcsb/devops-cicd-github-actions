@@ -34,13 +34,10 @@ jobs:
         run: |
           if [ ${{ inputs.namespace }} != "" ]; then
             echo "NAMESPACE=${{ inputs.namespace }} >> $GITHUB_ENV
-            exit 0
           elif [ ${{ github.ref_name == "production" ]; then
             echo "NAMESPACE=production" >> $GITHUB_ENV
-            exit 0
           elif [ ${{ github.ref_name == "staging" ]; then
             echo "NAMESPACE=staging" >> $GITHUB_ENV
-            exit 0
           else
             echo "::error title="Unknown release namespace"::"The release namespace could not be determined. Either no namespace value was passed in as an input to the workflow call, or the branch name does not match one of the default expected names."
             exit 1
