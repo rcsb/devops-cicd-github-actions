@@ -38,20 +38,24 @@ jobs:
     if: ${{ inputs.do_skaffold_deploy }}
     steps:
       - uses: actions/checkout@v3
-      - name: Determine namespace for release
+      - name: Determine environment for release
         run: |
           if [ ! -z "${{ inputs.namespace }}" ]; then
             echo "NAMESPACE=${{ inputs.namespace }}" >> $GITHUB_ENV
+            echo "SKAFFOLD_PROFILE=dev" >> $GITHUB_ENV
           elif [ "${{ github.ref_name }}" == "production" ]; then
             echo "NAMESPACE=production" >> $GITHUB_ENV
+            echo "SKAFFOLD_PROFILE=production" >> $GITHUB_ENV
           elif [ "${{ github.ref_name }}" == "staging" ] || \
                [ "${{ github.ref_name }}" == "k8s-staging" ] ; then
             echo "NAMESPACE=staging" >> $GITHUB_ENV
+            echo "SKAFFOLD_PROFILE=staging" >> $GITHUB_ENV
           else
             echo "::error title=Unknown release namespace::The release namespace could not be determined. Either no namespace value was passed in as an input to the workflow call, or the branch name does not match one of the default expected names."
             exit 1
           fi
-          echo "Deploying into the ${{ env.NAMESPACE }} namespace"
+          echo "Deploying into the ${{ env.NAMESPACE }} namespace."
+          echo "Using the ${{ env.SKAFFOLD_PROFILE }} profile for the skaffold deployment."
       - name: Skaffold Deploy from Dispatch
         run: |
-          skaffold deploy --namespace=${{ env.NAMESPACE }} --tag=${{ inputs.tag }}
+          skaffold deploy --namespace=${{ env.NAMESPACE }} --profile=${{ env.SKAFFOLD_PROFILE }} `if [ -z ${{ inputs.tag }} ]; then echo "--tag=${{ inputs.tag }}"; fi`
