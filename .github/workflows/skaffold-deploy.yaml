@@ -21,14 +21,7 @@ on:
       namespace:
         type: string
         required: false
-        default: |
-          if [ ${{ github.ref_name }} == "production" ]; then
-            production
-          elif [ ${{ github.ref_name }} == "staging" ]; then
-            staging
-          elif
-            echo "::error title="Unknown release namespace"::"The release namespace could not be determined. Either no namespace value was passed in as an input to the workflow call, or the branch name does not match one of the default expected names."
-          fi
+        default: ""
 
 jobs:
   skaffold-deploy:
@@ -37,6 +30,22 @@ jobs:
       - skaffold
     steps:
       - uses: actions/checkout@v3
+      - name: Determine namespace for release
+        run: |
+          if [ ${{ inputs.namespace }} != "" ]; then
+            echo "NAMESPACE=${{ inputs.namespace }} >> $GITHUB_ENV
+            exit 0
+          elif [ ${{ github.ref_name == "production" ]; then
+            echo "NAMESPACE=production" >> $GITHUB_ENV
+            exit 0
+          elif [ ${{ github.ref_name == "staging" ]; then
+            echo "NAMESPACE=staging" >> $GITHUB_ENV
+            exit 0
+          else
+            echo "::error title="Unknown release namespace"::"The release namespace could not be determined. Either no namespace value was passed in as an input to the workflow call, or the branch name does not match one of the default expected names."
+            exit 1
+          fi
+          echo "Deploying into the $NAMESPACE namespace"
       - name: Skaffold Deploy from Dispatch
         run: |
-          skaffold deploy --namespace=${{ inputs.namespace }} --tag=${{ inputs.tag }}
+          skaffold deploy --namespace=${{ env.NAMESPACE }} --tag=${{ inputs.tag }}
