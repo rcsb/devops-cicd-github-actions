@@ -14,9 +14,6 @@ on:
         type: string
         default: "jar"
         required: false
-      namespace:
-        type: string
-        required: false
 
 concurrency:
   group: ${{ github.ref }}
@@ -38,7 +35,4 @@ jobs:
       type: ${{ inputs.type }}
   call-skaffold-deploy:
     needs: call-build-and-push-docker
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/skaffold-deploy.yaml@master
-    with:
-      namespace: ${{ inputs.namespace }}
-
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/skaffold-deploy.yaml@k8s-staging

@@ -12,7 +12,14 @@ on:
         description: "K8s namespace to which perform the deployment"
         type: string
         required: false
-        default: default
+        default: |
+          if [ ${{ github.ref }} = "refs/heads/production" ]; then
+            production
+          elif [ ${{ github.ref }} = "refs/heads/staging" ]; then
+            staging
+          elif
+            echo "::error title="Unknown release namespace"::"The release namespace could not be determined. Either no namespace value was passed in as an input to the workflow call, or the branch name does not match one of the default expected names."
+          fi
 
   workflow_call:
     inputs:
