@@ -18,7 +18,7 @@ jobs:
   test:
     if: |
       !contains(github.event.head_commit.message, '[actions]')
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/java/run-tests.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/run-tests.yaml@master
   extract:
     name: extract-version
     needs: test
@@ -47,7 +47,7 @@ jobs:
       - run: echo ${{needs.extract.outputs.major}}.${{needs.extract.outputs.minor}}.${{needs.extract.outputs.patch}}
   call-release:
     needs: extract
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/java/release.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/release.yaml@master
     with:
       major: "${{needs.extract.outputs.major}}"
       minor: "${{needs.extract.outputs.minor}}"

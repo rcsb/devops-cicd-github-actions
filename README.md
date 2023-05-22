@@ -26,7 +26,7 @@ on:
 
 jobs:
   push-to-branch:
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/java/push-to-branch.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/push-to-branch.yaml@master
     with:
       distribution: # The file name of the built artifact which will be uploaded to buildlocker
       type: # The type of file for the built artifact. Valid options are [ war | jar ]
@@ -47,7 +47,7 @@ on:
 
 jobs:
   push-to-master:
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/java/push-to-master.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/push-to-master.yaml@master
     with:
       distribution: # The file name of the built artifact which will be uploaded to buildlocker
       type: # The type of file for the built artifact. Valid options are [ "war" | "jar" ]
@@ -77,7 +77,7 @@ on:
 
 jobs:
   cypress:
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/node/cypress.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/cypress.yaml@master
     with:
       branch: "master" # The name of the branch the test will be ran against
       type: "nightly" # The type of test to run. Values are [ "nightly" | "push" ]
@@ -96,14 +96,14 @@ on:
 
 jobs:
   cypress-test:
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/node/cypress.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/cypress.yaml@master
     with:
       branch: ${{ github.ref_name }} # Set this value to always use the commit branch. Leave as is.
       type: 'push' # The type of test to run. Values are [ "nightly" | "push" ]. Should just leave this as "push" in most cases.
 
   node-build-deploy:
     needs: cypress-test
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/node/node-deploy.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/node-deploy.yaml@master
     with:
       distribution: # The file name of the built artifact which will be uploaded to buildlocker
       branch: ${{ github.ref_name }} # Set this value to always use the commit branch. Leave as is.

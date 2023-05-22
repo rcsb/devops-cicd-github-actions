@@ -32,15 +32,15 @@ on:
 jobs:
   run-tests:
     if: inputs.skip-tests != true
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/java/run-tests.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/run-tests.yaml@master
   call-update-version:
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/java/update-version.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/update-version.yaml@master
     with:
       major: "${{ inputs.major }}"
       minor: "${{ inputs.minor }}"
       patch: "${{ inputs.patch }}"
   call-build-and-push-docker:
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/java/jib-build-and-push-docker.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/jib-build-and-push-docker.yaml@master
     with:
       tag: "${{ inputs.major }}.${{ inputs.minor }}.${{ inputs.patch }}"
   call-deploy-to-build-locker:
