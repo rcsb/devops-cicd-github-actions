@@ -15,7 +15,6 @@ on:
       do_skaffold_deploy:
         description: "Allow workflow to perform skaffold deployment"
         type: boolean
-        required: false
         default: true
   workflow_call:
     inputs:
@@ -29,7 +28,6 @@ on:
         default: ""
       do_skaffold_deploy:
         type: boolean
-        required: true
         default: true
 
 jobs:
