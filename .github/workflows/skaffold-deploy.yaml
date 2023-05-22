@@ -51,7 +51,7 @@ jobs:
             echo "::error title=Unknown release namespace::The release namespace could not be determined. Either no namespace value was passed in as an input to the workflow call, or the branch name does not match one of the default expected names."
             exit 1
           fi
-          echo "Deploying into the $NAMESPACE namespace"
+          echo "Deploying into the ${{ env.NAMESPACE }} namespace"
       - name: Skaffold Deploy from Dispatch
         run: |
           skaffold deploy --namespace=${{ env.NAMESPACE }} --tag=${{ inputs.tag }}
