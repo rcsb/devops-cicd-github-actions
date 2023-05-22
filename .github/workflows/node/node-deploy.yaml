@@ -9,9 +9,6 @@ on:
       branch:
         type: string
         required: true
-      type:
-        type: string
-        required: false
 
 jobs:
   build-and-push-node-to-buildlocker:

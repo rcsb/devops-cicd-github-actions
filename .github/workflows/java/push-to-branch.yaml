@@ -20,10 +20,10 @@ concurrency:
 
 jobs:
   test:
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/run-tests.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/java/run-tests.yaml@master
   call-build-and-push-docker:
     needs: test
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/build-and-push-docker.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/java/jib-build-and-push-docker.yaml@master
     with:
       tag: "${{ github.ref_name }}"
   call-deploy-to-buildlocker:
