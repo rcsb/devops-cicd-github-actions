@@ -32,11 +32,11 @@ jobs:
       - uses: actions/checkout@v3
       - name: Determine namespace for release
         run: |
-          if [ ${{ inputs.namespace }} != "" ]; then
+          if [ "${{ inputs.namespace }}" != "" ]; then
             echo "NAMESPACE=${{ inputs.namespace }} >> $GITHUB_ENV
-          elif [ ${{ github.ref_name }} == "production" ]; then
+          elif [ "${{ github.ref_name }}" == "production" ]; then
             echo "NAMESPACE=production" >> $GITHUB_ENV
-          elif [ ${{ github.ref_name }} == "staging" ]; then
+          elif [ "${{ github.ref_name }}" == "staging" ]; then
             echo "NAMESPACE=staging" >> $GITHUB_ENV
           else
             echo "::error title="Unknown release namespace"::"The release namespace could not be determined. Either no namespace value was passed in as an input to the workflow call, or the branch name does not match one of the default expected names."
