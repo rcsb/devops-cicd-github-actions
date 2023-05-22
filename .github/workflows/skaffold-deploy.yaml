@@ -22,9 +22,9 @@ on:
         type: string
         required: false
         default: |
-          if [ ${{ input.branch }} = "production" ]; then
+          if [ ${{ github.ref_name }} = "production" ]; then
             production
-          elif [ ${{ input.branch }} = "staging" ]; then
+          elif [ ${{ github.ref_name }} = "staging" ]; then
             staging
           elif
             echo "::error title="Unknown release namespace"::"The release namespace could not be determined. Either no namespace value was passed in as an input to the workflow call, or the branch name does not match one of the default expected names."
