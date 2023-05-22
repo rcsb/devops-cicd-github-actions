@@ -12,6 +12,11 @@ on:
         description: "K8s namespace to which perform the deployment"
         type: string
         required: true
+      do_skaffold_deploy:
+        description: "Allow workflow to perform skaffold deployment"
+        type: boolean
+        required: false
+        default: true
   workflow_call:
     inputs:
       tag:
@@ -22,12 +27,17 @@ on:
         type: string
         required: false
         default: ""
+      do_skaffold_deploy:
+        type: boolean
+        required: true
+        default: true
 
 jobs:
   skaffold-deploy:
     runs-on:
       - self-hosted
       - skaffold
+    if: ${{ inputs.do_skaffold_deploy }}
     steps:
       - uses: actions/checkout@v3
       - name: Determine namespace for release
