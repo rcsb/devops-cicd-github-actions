@@ -23,7 +23,7 @@ jobs:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/run-tests.yaml@master
   call-build-and-push-docker:
     needs: test
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/jib-build-and-push-docker.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/jib-build-and-push-docker.yaml@k8s-staging
     with:
       tag: "${{ github.ref_name }}"
   call-deploy-to-buildlocker:
