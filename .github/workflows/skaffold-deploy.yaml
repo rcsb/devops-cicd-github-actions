@@ -53,8 +53,10 @@ jobs:
             echo "::error title=Unknown release namespace::The release namespace could not be determined. Either no namespace value was passed in as an input to the workflow call, or the branch name does not match one of the default expected names."
             exit 1
           fi
-          echo "Deploying into the $(echo $GITHUB_ENV | grep NAMESPACE) namespace."
-          echo "Using the $(echo $GITHUB_ENV | grep SKAFFOLD_PROFILE) profile for the skaffold deployment."
+      - name: Output release environment variables
+        run: |
+          echo "Deploying into the ${{ env.NAMESPACE }} namespace."
+          echo "Using the ${{ env.SKAFFOLD_PROFILE }} profile for the skaffold deployment."
       - name: Skaffold Deploy from Dispatch
         run: |
           skaffold deploy --namespace=${{ env.NAMESPACE }} --profile=${{ env.SKAFFOLD_PROFILE }} $( if [ ! -z "${{ inputs.tag }}" ]; then echo "--tag=${{ inputs.tag }}"; fi )
