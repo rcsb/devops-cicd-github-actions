@@ -21,4 +21,4 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build and Push via jib
         run: |
-          mvn package jib:build -Djib.to.tags=${{ inputs.tag }},${{ github.ref_name }} -Djib.target.namespace=${{ inputs.namespace }} --no-transfer-progress -Dmaven.test.skip=true
+          mvn package jib:build -Djib.to.tags=${{ inputs.tag }} -Djib.target.namespace=${{ inputs.namespace }} --no-transfer-progress -Dmaven.test.skip=true

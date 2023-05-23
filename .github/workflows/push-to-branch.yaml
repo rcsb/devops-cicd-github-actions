@@ -37,3 +37,4 @@ jobs:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/skaffold-deploy.yaml@k8s-staging
     with:
       do_skaffold_deploy: ${{ inputs.do_skaffold_deploy }}
+      tag: "${{ github.ref_name }}"
