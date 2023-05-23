@@ -35,6 +35,4 @@ jobs:
   call-skaffold-deploy:
     needs: call-build-and-push-docker
     uses: rcsb/devops-cicd-github-actions/.github/workflows/skaffold-deploy.yaml@k8s-staging
-    with:
-      do_skaffold_deploy: ${{ inputs.do_skaffold_deploy }}
-      tag: "${{ github.ref_name }}"
+    if: ${{ inputs.do_skaffold_deploy }}

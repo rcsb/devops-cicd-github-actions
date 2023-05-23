@@ -3,38 +3,22 @@ name: Skaffold Deploy
 on:
   workflow_dispatch:
     inputs:
-      tag:
-        description: "Tag to be used as a docker image tag i.e. project version"
-        type: string
-        required: false
-        default: latest
       namespace:
         description: "K8s namespace to which perform the deployment"
         type: string
         required: true
-      do_skaffold_deploy:
-        description: "Allow workflow to perform skaffold deployment"
-        type: boolean
-        default: true
   workflow_call:
     inputs:
-      tag:
-        type: string
-        required: false
       namespace:
         type: string
         required: false
         default: ""
-      do_skaffold_deploy:
-        type: boolean
-        default: true
 
 jobs:
   skaffold-deploy:
     runs-on:
       - self-hosted
       - skaffold
-    if: ${{ inputs.do_skaffold_deploy }}
     steps:
       - uses: actions/checkout@v3
       - name: Determine environment for release
@@ -59,4 +43,4 @@ jobs:
           echo "Using the ${{ env.SKAFFOLD_PROFILE }} profile for the skaffold deployment."
       - name: Skaffold Deploy from Dispatch
         run: |
-          skaffold deploy --namespace=${{ env.NAMESPACE }} --profile=${{ env.SKAFFOLD_PROFILE }} $( if [ ! -z "${{ inputs.tag }}" ]; then echo "--tag=${{ inputs.tag }}"; fi )
+          skaffold deploy --namespace=${{ env.NAMESPACE }} --profile=${{ env.SKAFFOLD_PROFILE }}
