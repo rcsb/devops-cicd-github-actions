@@ -10,7 +10,7 @@ on:
       harbor_repository_name:
         description: The repository name of the image in Harbor
         type: string
-        default: ${{ github.event.repository.name }}
+        require: true
   workflow_dispatch:
     inputs:
       harbor_project:
@@ -20,7 +20,7 @@ on:
       harbor_repository_name:
         description: The repository name of the image in Harbor
         type: string
-        default: ${{ github.event.repository.name }}
+        require: true
 
 jobs:
   build-and-push-images:
