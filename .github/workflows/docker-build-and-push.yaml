@@ -5,17 +5,21 @@ on:
     inputs:
       harbor_project:
         description: The project in Harbor that the image will be associated with
+        type: string
         require: true
       harbor_repository_name:
         description: The repository name of the image in Harbor
+        type: string
         default: ${{ github.event.repository.name }}
   workflow_dispatch:
     inputs:
       harbor_project:
         description: The project in Harbor that the image will be associated with
+        type: string
         require: true
       harbor_repository_name:
         description: The repository name of the image in Harbor
+        type: string
         default: ${{ github.event.repository.name }}
 
 jobs:
