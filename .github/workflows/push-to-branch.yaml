@@ -12,7 +12,13 @@ on:
         required: false
       do_skaffold_deploy:
         type: boolean
-        default: true
+        default: false
+      namespace:
+        type: string
+        required: false
+      profile:
+        type: string
+        required: false
 
 concurrency:
   group: ${{ github.ref }}
@@ -33,6 +39,9 @@ jobs:
       distribution: ${{ inputs.distribution }}
       type: ${{ inputs.type }}
   call-skaffold-deploy:
+    if: ${{ inputs.do_skaffold_deploy }}
     needs: call-build-and-push-docker
     uses: rcsb/devops-cicd-github-actions/.github/workflows/skaffold-deploy.yaml@k8s-staging
-    if: ${{ inputs.do_skaffold_deploy }}
+    with:
+      namespace: ${{ inputs.namespace }}
+      profile: ${{ inputs.profile }}
