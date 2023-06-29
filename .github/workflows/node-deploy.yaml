@@ -18,5 +18,5 @@ jobs:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/skaffold-deploy.yaml@k8s-staging
     if: ${{ inputs.do_skaffold_deploy }}
     with:
-      namespace: ${{ inputs.branch }}
+      namespace: staging
       profile: staging
