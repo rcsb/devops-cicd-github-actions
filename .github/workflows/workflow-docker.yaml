@@ -48,12 +48,6 @@ on:
         default: "."
         description: "The path location of the docker build context, relative to the project root."
 
-# Run one workflow per branch. If a new commit is made to the branch while the workflow is in progress, the previous
-# workflow is cancelled.
-concurrency:
-  group: ${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   lint:
     name: "Lint Dockerfile"
