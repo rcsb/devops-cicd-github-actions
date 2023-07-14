@@ -57,12 +57,12 @@ concurrency:
 jobs:
   lint:
     name: "Lint Dockerfile"
-    uses: ./.github/workflows/shared_steps/lint_docker.yaml
+    uses: ./.github/workflows/lint_docker.yaml
     with:
       dockerfile_location: ${{ inputs.dockerfile_location }}
   build-and-push:
     name: "Build and Push Docker Image"
-    uses: ./.github/workflows/shared_steps/push_docker_image.yaml
+    uses: ./.github/workflows/build_docker.yaml
     with:
       repo_url: ${{ inputs.repo_url }}
       repo_project: ${{ inputs.repo_project }}
