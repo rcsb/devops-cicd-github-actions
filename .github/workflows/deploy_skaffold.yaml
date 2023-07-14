@@ -1,4 +1,5 @@
 name: Skaffold Deploy
+# Call the Skaffold command to deploy resources into the Kubernetes cluster.
 
 on:
   workflow_call:
@@ -6,9 +7,11 @@ on:
       namespace:
         type: string
         required: true
+        description: "The namespace into which the resources will be deployed."
       profile:
         type: string
         required: true
+        description: "The skaffold profile to use for the deployment."
 
 jobs:
   skaffold-deploy:

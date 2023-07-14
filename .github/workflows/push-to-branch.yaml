@@ -41,7 +41,7 @@ jobs:
   call-skaffold-deploy:
     if: ${{ inputs.do_skaffold_deploy }}
     needs: call-build-and-push-docker
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/skaffold-deploy.yaml@k8s-staging
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy_skaffold.yaml@k8s-staging
     with:
       namespace: ${{ inputs.namespace }}
       profile: ${{ inputs.profile }}
