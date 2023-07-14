@@ -1,0 +1,75 @@
+name: Build and Push Docker Image
+# Build and push a Docker image to remote repository
+
+on:
+  workflow_call:
+    inputs:
+      repo_url:
+        type: string
+        default: "harbor.devops.k8s.rcsb.org"
+        description: "The URL of the remote Docker image repository."
+      repo_project:
+        type: string
+        required: true
+        description: "The name of the project or organization in the remote Docker image repository."
+      docker_image_name:
+        type: string
+        required: true
+        description: "The name of the Docker image to create."
+      docker_build_context:
+        type: string
+        default: "."
+        description: "The path location of the docker build context, relative to the project root."
+  workflow_dispatch:
+    inputs:
+      repo_url:
+        type: string
+        default: "harbor.devops.k8s.rcsb.org"
+        description: "The URL of the remote Docker image repository."
+      repo_project:
+        type: string
+        required: true
+        description: "The name of the project or organization in the remote Docker image repository."
+      docker_image_name:
+        type: string
+        required: true
+        description: "The name of the Docker image to create."
+      docker_build_context:
+        type: string
+        default: "."
+        description: "The path location of the docker build context, relative to the project root."
+
+jobs:
+  build-and-push-images:
+    name: "Build and Push Dockerfile Image"
+    runs-on:
+      - "self-hosted"
+      - "dind"
+    steps:
+      - uses: actions/checkout@v3
+      # Login to RCSB Harbor registry is set up within the GitHub Actions runner environment
+      - name: "Set up Docker Buildx"
+        uses: docker/setup-buildx-action@v2
+      - name: "Add metadata to Docker images"
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ inputs.repo_url }}/${{ inputs.repo_project }}/${{ inputs.docker_image_name }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=gha_run_number_${{ github.run_number }}
+            type=raw,value=gha_run_id_${{ github.run_id }}
+            type=ref,event=branch
+            type=ref,event=tag
+            type=ref,event=pr
+            type=sha
+          labels: |
+            github.action.workflow.run_id=${{ github.run_id }}
+            github.action.workflow.run_number=${{ github.run_number }}
+      - name: Build and Push Image - ${{ inputs.docker_image_name }}
+        uses: docker/build-push-action@v3
+        with:
+          context: ${{ inputs.docker_build_context }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

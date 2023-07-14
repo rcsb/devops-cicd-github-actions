@@ -1,0 +1,70 @@
+name: Docker Workflow
+# Standard workflow for any projects only building and running docker images. For language specific projects, see other
+# workflows within the shared library.
+
+on:
+  workflow_call:
+    inputs:
+      dockerfile_location:
+        type: string
+        default: "Dockerfile"
+        description: "The location of the Dockerfile relative to the root of the repository."
+      repo_url:
+        type: string
+        default: "harbor.devops.k8s.rcsb.org"
+        description: "The URL of the remote Docker image repository."
+      repo_project:
+        type: string
+        required: true
+        description: "The name of the project or organization in the remote Docker image repository."
+      docker_image_name:
+        type: string
+        required: true
+        description: "The name of the Docker image to create."
+      docker_build_context:
+        type: string
+        default: "."
+        description: "The path location of the docker build context, relative to the project root."
+  workflow_dispatch:
+    inputs:
+      dockerfile_location:
+        type: string
+        default: "Dockerfile"
+        description: "The location of the Dockerfile relative to the root of the repository."
+      repo_url:
+        type: string
+        default: "harbor.devops.k8s.rcsb.org"
+        description: "The URL of the remote Docker image repository."
+      repo_project:
+        type: string
+        required: true
+        description: "The name of the project or organization in the remote Docker image repository."
+      docker_image_name:
+        type: string
+        required: true
+        description: "The name of the Docker image to create."
+      docker_build_context:
+        type: string
+        default: "."
+        description: "The path location of the docker build context, relative to the project root."
+
+# Run one workflow per branch. If a new commit is made to the branch while the workflow is in progress, the previous
+# workflow is cancelled.
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: "Lint Dockerfile"
+    uses: ./.github/workflows/shared_steps/lint_docker.yaml
+    with:
+      dockerfile_location: ${{ inputs.dockerfile_location }}
+  build-and-push:
+    name: "Build and Push Docker Image"
+    uses: ./.github/workflows/shared_steps/push_docker_image.yaml
+    with:
+      repo_url: ${{ inputs.repo_url }}
+      repo_project: ${{ inputs.repo_project }}
+      docker_image_name: ${{ inputs.docker_image_name }}
+      docker_build_context: ${{ inputs.docker_build_context }}
