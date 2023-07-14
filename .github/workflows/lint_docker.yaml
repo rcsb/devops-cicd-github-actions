@@ -28,4 +28,4 @@ jobs:
         run: |
           echo "Running hadolint on Dockerfile located at: ${{ inputs.dockerfile_location }}"
           echo "An empty output indicates a successful lint."
-          hadolint 
+          hadolint ${{ inputs.dockerfile_location }}
