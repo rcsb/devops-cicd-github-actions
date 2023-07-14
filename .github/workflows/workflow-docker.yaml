@@ -63,6 +63,7 @@ jobs:
   build-and-push:
     name: "Build and Push Docker Image"
     uses: ./.github/workflows/build_docker.yaml
+    needs: lint
     with:
       repo_url: ${{ inputs.repo_url }}
       repo_project: ${{ inputs.repo_project }}
