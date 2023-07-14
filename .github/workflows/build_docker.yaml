@@ -20,6 +20,10 @@ on:
         type: string
         default: "."
         description: "The path location of the docker build context, relative to the project root."
+      additional_tag:
+        type: string
+        default: ""
+        description: "Additional tag to add to then Docker image."
   workflow_dispatch:
     inputs:
       repo_url:
@@ -38,6 +42,10 @@ on:
         type: string
         default: "."
         description: "The path location of the docker build context, relative to the project root."
+      additional_tag:
+        type: string
+        default: ""
+        description: "Additional tag to add to then Docker image."
 
 jobs:
   build-and-push-images:
@@ -57,6 +65,7 @@ jobs:
           images: ${{ inputs.repo_url }}/${{ inputs.repo_project }}/${{ inputs.docker_image_name }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=${{ inputs.additional_tag }},enable=${{ inputs.additional_tag != '' }}
             type=raw,value=gha_run_number_${{ github.run_number }}
             type=raw,value=gha_run_id_${{ github.run_id }}
             type=ref,event=branch

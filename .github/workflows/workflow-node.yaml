@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Build jobs
   build_npm:
     name: "Build via NPM"
     uses: ./.github/workflows/run_npm.yaml
@@ -19,6 +20,7 @@ jobs:
   lint_docker:
     name: "Lint Dockerfile"
     uses: ./.github/workflows/lint_docker.yaml
+  # Test jobs
   test_npm:
     name: "Run unit tests via NPM"
     needs:
@@ -38,21 +40,42 @@ jobs:
     with:
       repo_project: "rcsb"
       docker_image_name: "rcsb-sierra"
+  # Staging jobs
+  build_docker_staging:
+    name: "Build docker image with staging tag"
+    needs:
+      - test_npm
+      - build_docker
+    uses: ./.github/workflow/build_docker.yaml
+    with:
+      repo_project: "rcsb"
+      docker_image_name: "rcsb-sierra"
+      additional_tag: "staging"
   skaffold_deploy_staging:
     name: "Skaffold deploy into staging namespace"
     if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     needs:
-      - test_npm
-      - build_docker
+      - build_docker_staging
     uses: ./.github/workflows/deploy_skaffold.yaml
     with:
       namespace: staging
       profile: staging
+  # Production jobs
+  build_docker_production:
+    name: "Build docker image with production tag"
+    needs:
+      - test_npm
+      - build_docker
+    uses: ./.github/workflow/build_docker.yaml
+    with:
+      repo_project: "rcsb"
+      docker_image_name: "rcsb-sierra"
+      additional_tag: "production"
   skaffold_deploy_production:
     name: Skaffold deploy into production environment"
     if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     needs:
-      - skaffold_deploy_staging
+      - skaffold_deploy_production
     uses: ./.github/workflows/deploy_skaffold.yaml
     with:
       namespace: production
