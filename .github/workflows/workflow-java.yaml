@@ -18,6 +18,9 @@ on:
 jobs:
   # Debugging inputs
   debug_input:
+    runs-on:
+      - "self-hosted"
+      - "java"
     steps:
       - run: |
           echo "Mainline branch input: ${{ inputs.mainline_branch }}"
