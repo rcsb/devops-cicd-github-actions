@@ -3,7 +3,17 @@ name: Java Workflow
 
 on:
   workflow_call:
+    inputs:
+      mainline_branch:
+        type: string
+        default: format('refs/heads/{0}', github.event.repository.default_branch)
+        describe: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch."
   workflow_dispatch:
+    inputs:
+      mainline_branch:
+        type: string
+        default: format('refs/heads/{0}', github.event.repository.default_branch)
+        describe: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch."
 
 jobs:
   # Test projects
@@ -31,7 +41,7 @@ jobs:
   # Staging jobs
   build_jib_staging:
     name: "Build docker image via jib with staging tag"
-    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    if: (github.ref == inputs.mainline_branch) && (github.event_name != 'pull_request')
     needs:
       - build_jib
     uses: ./.github/workflows/run_mvn.yaml
@@ -39,7 +49,7 @@ jobs:
       script: package jib:build -Djib.to.tags=staging -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true
   skaffold_deploy_staging:
     name: "Skaffold deploy into staging namespace"
-    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    if: (github.ref == inputs.mainline_branch) && (github.event_name != 'pull_request')
     needs:
       - build_jib_staging
     uses: ./.github/workflows/deploy_skaffold.yaml
@@ -50,6 +60,7 @@ jobs:
   # TODO: Increment version of project through workflow. Add this step once we are ready to retire older workflow files.
   build_docker_production:
     name: "Build docker image via jib with production tag"
+    if: (github.ref == inputs.mainline_branch) && (github.event_name != 'pull_request')
     needs:
       - skaffold_deploy_staging
     uses: ./.github/workflows/run_mvn.yaml
@@ -57,7 +68,7 @@ jobs:
       script: package jib:build -Djib.to.tags=production -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true
   skaffold_deploy_production:
     name: Skaffold deploy into production environment"
-    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    if: (github.ref == inputs.mainline_branch) && (github.event_name != 'pull_request')
     needs:
       - build_docker_production
     uses: ./.github/workflows/deploy_skaffold.yaml

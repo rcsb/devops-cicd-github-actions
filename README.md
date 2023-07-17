@@ -26,6 +26,8 @@ jobs:
   run-workflow:
     name: "Run automated workflow"
     uses: rcsb/devops-cicd-github-actions/.github/workflows/workflow-java.yaml@master
+    with:
+      mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch.
 ```
 
 # Node Projects
@@ -71,6 +73,8 @@ jobs:
   run-workflow:
     name: "Run automated workflow"
     uses: rcsb/devops-cicd-github-actions/.github/workflows/workflow-node.yaml@master
+    with:
+      mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch.
 ```
 
 # Docker Projects
