@@ -65,6 +65,7 @@ jobs:
           string: ${{ inputs.branch }}
       - name: Deploy to Buildlocker
         run: |
-          tar -czf ${{ inputs.distribution }}-${{ steps.convert_to_lower.outputs.lowercase }}.tgz *
+          tar -czfv ${{ inputs.distribution }}-${{ steps.convert_to_lower.outputs.lowercase }}.tgz *
           test -e ${{ inputs.distribution }}-${{ steps.convert_to_lower.outputs.lowercase }}.tgz
+          ls -lrt ${{ inputs.distribution }}-${{ steps.convert_to_lower.outputs.lowercase }}.tgz
           /usr/bin/sshpass -p $(cat ~/.secrets/buildlocker_transporter_pw.txt) sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null transporter@bl-receive.rcsb.org:1-receive <<< $"put ${{ inputs.distribution }}-${{ steps.convert_to_lower.outputs.lowercase }}.tgz"
