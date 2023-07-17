@@ -53,7 +53,7 @@ jobs:
   # Staging jobs
   build_docker_staging:
     name: "Build docker image with staging tag"
-    if: (github.ref == inputs.mainline_branch) && (github.event_name != 'pull_request')
+    if: (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
     needs:
       - test_npm
       - build_docker
@@ -64,7 +64,7 @@ jobs:
       additional_tag: "staging"
   skaffold_deploy_staging:
     name: "Skaffold deploy into staging namespace"
-    if: (github.ref == inputs.mainline_branch) && (github.event_name != 'pull_request')
+    if: (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
     needs:
       - build_docker_staging
     uses: ./.github/workflows/deploy_skaffold.yaml
@@ -74,7 +74,7 @@ jobs:
   # Production jobs
   build_docker_production:
     name: "Build docker image with production tag"
-    if: (github.ref == inputs.mainline_branch) && (github.event_name != 'pull_request')
+    if: (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
     needs:
       - build_docker_staging
     uses: ./.github/workflow/build_docker.yaml
@@ -84,7 +84,7 @@ jobs:
       additional_tag: "production"
   skaffold_deploy_production:
     name: Skaffold deploy into production environment"
-    if: (github.ref == inputs.mainline_branch) && (github.event_name != 'pull_request')
+    if: (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
     needs:
       - build_docker_production
     uses: ./.github/workflows/deploy_skaffold.yaml
