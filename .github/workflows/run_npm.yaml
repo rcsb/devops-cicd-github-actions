@@ -16,7 +16,7 @@ on:
         description: "The script name as defined in package.json."
 
 jobs:
-  build-npm:
+  run-npm:
     name: "Run NPM ${{ inputs.script }}"
     runs-on:
       - "self-hosted"
