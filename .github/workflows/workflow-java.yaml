@@ -16,6 +16,15 @@ on:
         description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch."
 
 jobs:
+  # Debugging inputs
+  debug_input:
+    steps:
+      - run: |
+          echo "Mainline branch input: ${{ inputs.mainline_branch }}"
+          echo "GitHub ref value: ${{ github.ref }}"
+          echo "GitHub evennt name: ${{ github.event_name }}"
+          echo "Evaluate if it's a mainline branch workflow: ${{ github.ref == inputs.mainline_branch }}"
+          echo "Evaluate if job should run: ${{ (github.ref == inputs.mainline_branch) && (github.event_name != 'pull_request') }}"
   # Test projects
   test_mvn:
     name: "Run tests via mvn"
