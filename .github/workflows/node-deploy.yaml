@@ -9,14 +9,14 @@ on:
       branch:
         type: string
         required: true
-      do_skaffold_deploy:
-        type: boolean
-        default: true
+      type:
+        type: string
+        required: false
 
 jobs:
-  call-skaffold-deploy:
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy_skaffold.yaml@k8s-staging
-    if: ${{ inputs.do_skaffold_deploy }}
+  build-and-push-node-to-buildlocker:
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker.yaml@master
     with:
-      namespace: staging
-      profile: staging
+      distribution: ${{ inputs.distribution }}
+      branch: ${{ inputs.branch }}
+      type: node

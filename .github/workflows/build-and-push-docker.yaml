@@ -1,4 +1,4 @@
-name: Build and Push Docker using Jib
+name: Build and Push Docker
 
 on:
   workflow_call:

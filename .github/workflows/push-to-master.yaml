@@ -1,5 +1,9 @@
 name: Push to Master Branch
 on:
+  push:
+    branches:
+      - "master"
+      - "main"
   workflow_call:
     inputs:
       distribution:

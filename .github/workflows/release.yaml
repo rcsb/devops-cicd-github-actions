@@ -40,7 +40,7 @@ jobs:
       minor: "${{ inputs.minor }}"
       patch: "${{ inputs.patch }}"
   call-build-and-push-docker:
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/jib-build-and-push-docker.yaml@master
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/build-and-push-docker.yaml@master
     with:
       tag: "${{ inputs.major }}.${{ inputs.minor }}.${{ inputs.patch }}"
   call-deploy-to-build-locker:

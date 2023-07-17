@@ -1,6 +1,10 @@
 name: Push to Branch
 
 on:
+  push:
+    branches-ignore:
+      - "master"
+      - "main"
   workflow_call:
     inputs:
       distribution:
@@ -9,15 +13,6 @@ on:
       type:
         type: string
         default: "jar"
-        required: false
-      do_skaffold_deploy:
-        type: boolean
-        default: false
-      namespace:
-        type: string
-        required: false
-      profile:
-        type: string
         required: false
 
 concurrency:
@@ -29,7 +24,7 @@ jobs:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/run-tests.yaml@master
   call-build-and-push-docker:
     needs: test
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/jib-build-and-push-docker.yaml@k8s-staging
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/build-and-push-docker.yaml@master
     with:
       tag: "${{ github.ref_name }}"
   call-deploy-to-buildlocker:
@@ -38,10 +33,3 @@ jobs:
     with:
       distribution: ${{ inputs.distribution }}
       type: ${{ inputs.type }}
-  call-skaffold-deploy:
-    if: ${{ inputs.do_skaffold_deploy }}
-    needs: call-build-and-push-docker
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy_skaffold.yaml@k8s-staging
-    with:
-      namespace: ${{ inputs.namespace }}
-      profile: ${{ inputs.profile }}
