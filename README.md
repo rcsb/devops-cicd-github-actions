@@ -21,6 +21,7 @@ name: Run CI/CD Workflow
 
 on:
   push:
+  workflow_dispatch:
 
 jobs:
   run-workflow:
@@ -68,6 +69,7 @@ name: Run CI/CD Workflow
 
 on:
   push:
+  workflow_dispatch:
 
 jobs:
   run-workflow:
@@ -88,6 +90,7 @@ name: Run CI/CD Workflow
 
 on:
   push:
+  workflow_dispatch:
 
 jobs:
   run-workflow:
