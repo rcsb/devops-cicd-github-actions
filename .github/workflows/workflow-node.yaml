@@ -52,16 +52,17 @@ jobs:
       docker_image_name: "rcsb-sierra"
   # Staging jobs
   build_docker_staging:
-    name: "Build docker image with staging tag"
+    name: "Push docker image with staging tag"
     if: (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
     needs:
       - test_npm
       - build_docker
-    uses: ./.github/workflows/build_docker.yaml
+    uses: ./.github/workflows/retag_docker.yaml
     with:
       repo_project: "rcsb"
       docker_image_name: "rcsb-sierra"
-      additional_tag: "staging"
+      old_tag: "${{ github.ref_name }}"
+      new_tag: "staging"
   skaffold_deploy_staging:
     name: "Skaffold deploy into staging namespace"
     if: (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
@@ -73,15 +74,16 @@ jobs:
       profile: staging
   # Production jobs
   build_docker_production:
-    name: "Build docker image with production tag"
+    name: "Push docker image with production tag"
     if: (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
     needs:
-      - build_docker_staging
-    uses: ./.github/workflows/build_docker.yaml
+      - skaffold_deploy_staging
+    uses: ./.github/workflows/retag_docker.yaml
     with:
       repo_project: "rcsb"
       docker_image_name: "rcsb-sierra"
-      additional_tag: "production"
+      old_tag: "${{ github.ref_name }}"
+      new_tag: "production"
   skaffold_deploy_production:
     name: Skaffold deploy into production environment"
     if: (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')

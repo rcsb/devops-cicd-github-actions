@@ -1,0 +1,65 @@
+name: Re-tag and Push Docker Image
+# Tag and push an existing Docker image to remote repository
+
+on:
+  workflow_call:
+    inputs:
+      repo_url:
+        type: string
+        default: "harbor.devops.k8s.rcsb.org"
+        description: "The URL of the remote Docker image repository."
+      repo_project:
+        type: string
+        required: true
+        description: "The name of the project or organization in the remote Docker image repository."
+      docker_image_name:
+        type: string
+        required: true
+        description: "The name of the Docker image to create."
+      old_tag:
+        type: string
+        required: true
+        description: "The original tag of the docker image."
+      new_tag:
+        type: string
+        required: true
+        description: "The new tag of the docker image."
+  workflow_dispatch:
+    inputs:
+      repo_url:
+        type: string
+        default: "harbor.devops.k8s.rcsb.org"
+        description: "The URL of the remote Docker image repository."
+      repo_project:
+        type: string
+        required: true
+        description: "The name of the project or organization in the remote Docker image repository."
+      docker_image_name:
+        type: string
+        required: true
+        description: "The name of the Docker image to create."
+      old_tag:
+        type: string
+        required: true
+        description: "The original tag of the docker image."
+      new_tag:
+        type: string
+        required: true
+        description: "The new tag of the docker image."
+
+jobs:
+  retag-and-push-images:
+    name: "Re-tag and Push Docker Image"
+    runs-on:
+      - "self-hosted"
+      - "dind"
+    steps:
+      - name: "Pull Docker image"
+        run: |
+          docker pull ${{ inputs.repo_url }}/${{ inputs.repo_project }}/${{ inputs.docker_image_name }}:${{ inputs.old_tag }}
+      - name: "Re-tag Docker image"
+        run: |
+          docker tag ${{ inputs.repo_url }}/${{ inputs.repo_project }}/${{ inputs.docker_image_name }}:${{ inputs.old_tag }} ${{ inputs.repo_url }}/${{ inputs.repo_project }}/${{ inputs.docker_image_name }}:${{ inputs.new_tag }}
+      - name: "Push new Docker image"
+        run: |
+          docker push ${{ inputs.repo_url }}/${{ inputs.repo_project }}/${{ inputs.docker_image_name }}:${{ inputs.new_tag }}
