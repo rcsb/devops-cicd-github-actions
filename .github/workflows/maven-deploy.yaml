@@ -12,4 +12,4 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Publish package
-        run: mvn --batch-mode --errors -U clean deploy
+        run: mvn --batch-mode --errors --no-transfer-progress -U clean deploy
