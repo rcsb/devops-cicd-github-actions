@@ -1,0 +1,37 @@
+name: Skaffold Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to be used as a docker image tag i.e. project version"
+        type: string
+        required: false
+        default: latest
+      namespace:
+        description: "K8s namespace to which perform the deployment"
+        type: string
+        required: false
+        default: default
+
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: false
+        default: latest
+      namespace:
+        type: string
+        required: false
+        default: default
+
+jobs:
+  skaffold-deploy:
+    runs-on:
+      - self-hosted
+      - skaffold
+    steps:
+      - uses: actions/checkout@v3
+      - name: Skaffold Deploy from Dispatch
+        run: |
+          skaffold deploy --namespace=${{ inputs.namespace }} --tag=${{ inputs.tag }}
