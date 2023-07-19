@@ -1,0 +1,31 @@
+name: Lint Dockerfile
+# Lint Dockerfile definitions to conform to best practices.
+
+on:
+  workflow_call:
+    inputs:
+      dockerfile_location:
+        type: string
+        default: "Dockerfile"
+        description: "The location of the Dockerfile relative to the root of the repository."
+  workflow_dispatch:
+    inputs:
+      dockerfile_location:
+        type: string
+        default: "Dockerfile"
+        description: "The location of the Dockerfile relative to the root of the repository."
+
+jobs:
+  lint:
+    name: "Lint Dockerfile"
+    runs-on:
+      - "self-hosted"
+      - "hadolint"
+    steps:
+      - uses: actions/checkout@v3
+        name: "Checkout code"
+      - name: "Run lint"
+        run: |
+          echo "Running hadolint on Dockerfile located at: ${{ inputs.dockerfile_location }}"
+          echo "An empty output indicates a successful lint."
+          hadolint ${{ inputs.dockerfile_location }}

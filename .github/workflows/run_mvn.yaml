@@ -1,0 +1,38 @@
+name: Run Maven Commands
+# Execute mvn commands for a Java project
+
+on:
+  workflow_call:
+    inputs:
+      script:
+        type: string
+        required: true
+        description: "The command and arguments for the mvn call."
+      publish_surefire_test_report:
+        type: boolean
+        default: false
+        description: "If executing a mvn test command, output surefire test report to GitHub Actions workflow."
+  workflow_dispatch:
+    inputs:
+      script:
+        type: string
+        required: true
+        description: "The command and arguments for the mvn call."
+      publish_surefire_test_report:
+        type: boolean
+        default: false
+        description: "If executing a mvn test command, output surefire test report to GitHub Actions workflow."
+
+jobs:
+  run-nvm:
+    name: "Run mvn ${{ inputs.script }}"
+    runs-on:
+      - "self-hosted"
+      - "java"
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Execute goal"
+        run: mvn ${{ inputs.script }}
+      - name: "Publish test reports"
+        if: ${{ inputs.publish_surefire_test_report }}
+        uses: scacap/action-surefire-report@v1

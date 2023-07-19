@@ -1,0 +1,78 @@
+name: Java Workflow
+# Standard workflow for any Java based projects built with Jib.
+
+on:
+  workflow_call:
+    inputs:
+      mainline_branch:
+        type: string
+        default: format('refs/heads/{0}', github.event.repository.default_branch)
+        description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch."
+  workflow_dispatch:
+    inputs:
+      mainline_branch:
+        type: string
+        default: format('refs/heads/{0}', github.event.repository.default_branch)
+        description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch."
+
+jobs:
+  # Test projects
+  test_mvn:
+    name: "Run tests via mvn"
+    uses: ./.github/workflows/run_mvn.yaml
+    with:
+      script: "test --no-transfer-progress"
+      publish_surefire_test_report: true
+  build_mvn:
+    name: "Build project with mvn"
+    uses: ./.github/workflows/run_mvn.yaml
+    with:
+      script: package
+  # Push jib
+  build_jib:
+    name: "Build and push docker image with Jib"
+    if: github.event_name != 'pull_request'
+    needs:
+      - test_mvn
+      - build_mvn
+    uses: ./.github/workflows/run_mvn.yaml
+    with:
+      script: package jib:build -Djib.to.tags=${{ github.ref_name }} -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true
+  # Staging jobs
+  build_jib_staging:
+    name: "Build docker image via jib with staging tag"
+    if: (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    needs:
+      - build_jib
+    uses: ./.github/workflows/run_mvn.yaml
+    with:
+      script: package jib:build -Djib.to.tags=staging -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true
+  skaffold_deploy_staging:
+    name: "Skaffold deploy into staging namespace"
+    if: (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    needs:
+      - build_jib_staging
+    uses: ./.github/workflows/deploy_skaffold.yaml
+    with:
+      namespace: staging
+      profile: staging
+  # Production jobs
+  # TODO: Increment version of project through workflow. Add this step once we are ready to retire older workflow files.
+  build_docker_production:
+    name: "Build docker image via jib with production tag"
+    if: (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    needs:
+      - skaffold_deploy_staging
+    uses: ./.github/workflows/run_mvn.yaml
+    with:
+      script: package jib:build -Djib.to.tags=production -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true
+  skaffold_deploy_production:
+    name: Skaffold deploy into production environment"
+    if: (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    needs:
+      - build_docker_production
+    uses: ./.github/workflows/deploy_skaffold.yaml
+    with:
+      namespace: production
+      profile: production
+
