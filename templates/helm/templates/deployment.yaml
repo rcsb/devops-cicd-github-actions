@@ -69,10 +69,10 @@ spec:
               mountPath: "{{ .mountPath }}/{{ .filename }}"
               subPath: {{ .filename | quote }}
             {{- end }}
-            {{- range $key, $_ := .Values.appConfigs }}
-            - name: {{ include "helm_chart.configmapName" . }}
-              mountPath: "{{ $_.mountPath }}/{{ $_.filename }}"
-              subPath: {{ $_.filename | quote }}
+            {{- range .Values.appConfigs }}
+            - name: {{ include "helm_chart.configmapName" $ }}
+              mountPath: "{{ .mountPath }}/{{ .filename }}"
+              subPath: {{ .filename | quote }}
             {{- end }}
           {{- end }}
       {{- if or .Values.usePersistentVolume .Values.useSecretsVolume .Values.useAppConfigs}}
