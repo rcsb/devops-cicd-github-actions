@@ -1,10 +1,14 @@
 # devops-cicd-github-actions
 
-Shared library of GitHub Actions Workflows to standardize CI/CD operations for RCSB repositories.
+Shared library of GitHub Actions Workflows and files to standardize CI/CD operations for RCSB repositories.
 
 # Using this library
 
 Within the GitHub repository for your application, you will need to create and include the `.yaml` files under the `.github/workflows` directory in order to enable the automated CI/CD pipelines to handle linting, testing, builds, and deployments.
+
+To package your application as a Helm chart, add the `templates/helm` directory under the root of your project as `k8s/helm`. Modify the values in the `Chart.yaml` and `values.yaml` files to fit the project needs.
+
+To deploy your application using Skaffold, add the `templates/skaffold.yaml` file to the root of your project as `skaffold.yaml`. Modify the `releases.name` values to match the application.
 
 To learn more about GitHub Actions workflows, see [this link](https://docs.github.com/en/actions/using-workflows/about-workflows).
 

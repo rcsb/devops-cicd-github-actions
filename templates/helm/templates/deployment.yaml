@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "helm_chart.fullname" . }}
+  labels:
+    {{- include "helm_chart.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "helm_chart.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: {{ .Values.deploymentStrategy.type }}
+    {{- if eq .Values.deploymentStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ .Values.deploymentStrategy.maxSurge }}
+      maxUnavailable: {{ .Values.deploymentStrategy.maxUnavailable }}
+    {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "helm_chart.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          {{- if .Values.livenessProbe.enable }}
+          livenessProbe:
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+            httpGet:
+              path: {{ .Values.livenessProbe.http.path }}
+              port: http
+          {{- end }}
+          {{- if .Values.readinessProbe.enable }}
+          readinessProbe:
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+            httpGet:
+              path: {{ .Values.readinessProbe.http.path }}
+              port: http
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- if or .Values.usePersistentVolume .Values.useSecretsVolume .Values.useAppConfigs }}
+          volumeMounts:
+            {{- if .Values.usePersistentVolume }}
+            - mountPath: {{ .Values.persistentVolumeMountPath }}
+              name: {{ include "helm_chart.pvname" . }}
+              readOnly: {{ .Values.persistentVolumeReadOnly }}
+            {{- end }}
+            {{- range .Values.secretVolumes }}
+            - name: {{ .name | quote }}
+              mountPath: "{{ .mountPath }}/{{ .filename }}"
+              subPath: {{ .filename | quote }}
+            {{- end }}
+            {{- range .Values.appConfigs }}
+            - name: {{ include "helm_chart.configmapName" $ }}
+              mountPath: "{{ .mountPath }}/{{ .filename }}"
+              subPath: {{ .filename | quote }}
+            {{- end }}
+          {{- end }}
+      {{- if or .Values.usePersistentVolume .Values.useSecretsVolume .Values.useAppConfigs}}
+      volumes:
+        {{- if .Values.usePersistentVolume }}
+        - name: {{ include "helm_chart.pvname" . }}
+          persistentVolumeClaim:
+            claimName: {{ include "helm_chart.pvname" . }}
+        {{- end }}
+        {{- range .Values.secretVolumes }}
+        - name: {{ .name | quote }}
+          secret:
+            secretName: {{ .secretName | quote }}
+        {{- end }}
+        {{- if .Values.useAppConfigs }}
+        - name: {{ include "helm_chart.configmapName" . }}
+          configMap:
+            name: {{ include "helm_chart.configmapName" . }}
+        {{- end }}
+      {{- end }}

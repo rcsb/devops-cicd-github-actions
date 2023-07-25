@@ -1,0 +1,13 @@
+{{- if .Values.useAppConfigs }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "helm_chart.fullname" . }}-config
+  labels:
+    {{- include "helm_chart.labels" . | nindent 4 }}
+data:
+{{- range $file, $_ := .Values.appConfigs }}
+  {{ $file }}: |
+{{ $_.value | indent 4 }}
+{{- end -}}
+{{- end }}
