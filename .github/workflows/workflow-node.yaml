@@ -48,8 +48,9 @@ jobs:
       - lint_docker
     uses: ./.github/workflows/build_docker.yaml
     with:
-      repo_project: "rcsb"
-      docker_image_name: "rcsb-sierra"
+      repo_url: "${{ inputs.repo_url }}"
+      repo_project: "${{ inputs.repo_project }}"
+      docker_image_name: "${{ inputs.docker_image_name }}"
   # Staging jobs
   build_docker_staging:
     name: "Push docker image with staging tag"
@@ -59,8 +60,9 @@ jobs:
       - build_docker
     uses: ./.github/workflows/retag_docker.yaml
     with:
-      repo_project: "rcsb"
-      docker_image_name: "rcsb-sierra"
+      repo_url: "${{ inputs.repo_url }}"
+      repo_project: "${{ inputs.repo_project }}"
+      docker_image_name: "${{ inputs.docker_image_name }}"
       old_tag: "${{ github.ref_name }}"
       new_tag: "staging"
   skaffold_deploy_staging:
@@ -80,8 +82,9 @@ jobs:
       - skaffold_deploy_staging
     uses: ./.github/workflows/retag_docker.yaml
     with:
-      repo_project: "rcsb"
-      docker_image_name: "rcsb-sierra"
+      repo_url: "${{ inputs.repo_url }}"
+      repo_project: "${{ inputs.repo_project }}"
+      docker_image_name: "${{ inputs.docker_image_name }}"
       old_tag: "${{ github.ref_name }}"
       new_tag: "production"
   skaffold_deploy_production:

@@ -25,6 +25,14 @@ on:
         type: string
         default: "."
         description: "The path location of the docker build context, relative to the project root."
+      do_skaffold_deploy:
+        type: boolean
+        default: false
+        description: "Deploy the Docker image via Helm and Skaffold"
+      mainline_branch:
+        type: string
+        default: format('refs/heads/{0}', github.event.repository.default_branch)
+        description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch."
   workflow_dispatch:
     inputs:
       dockerfile_location:
@@ -47,6 +55,14 @@ on:
         type: string
         default: "."
         description: "The path location of the docker build context, relative to the project root."
+      do_skaffold_deploy:
+        type: boolean
+        default: false
+        description: "Deploy the Docker image via Helm and Skaffold."
+      mainline_branch:
+        type: string
+        default: format('refs/heads/{0}', github.event.repository.default_branch)
+        description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch."
 
 jobs:
   lint:
@@ -63,3 +79,47 @@ jobs:
       repo_project: ${{ inputs.repo_project }}
       docker_image_name: ${{ inputs.docker_image_name }}
       docker_build_context: ${{ inputs.docker_build_context }}
+  # Staging jobs
+  build_docker_staging:
+    name: "Push docker image with staging tag"
+    if: (${{ inputs.do_skaffold_deploy }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    needs:
+      - build-and-push
+    uses: ./.github/workflows/retag_docker.yaml
+    with:
+      repo_url: "${{ inputs.repo_url }}"
+      repo_project: "${{ inputs.repo_project }}"
+      docker_image_name: "${{ inputs.docker_image_name }}"
+      old_tag: "${{ github.ref_name }}"
+      new_tag: "staging"
+  skaffold_deploy_staging:
+    name: "Skaffold deploy into staging namespace"
+    if: (${{ inputs.do_skaffold_deploy }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    needs:
+      - build_docker_staging
+    uses: ./.github/workflows/deploy_skaffold.yaml
+    with:
+      namespace: staging
+      profile: staging
+  # Production jobs
+  build_docker_production:
+    name: "Push docker image with production tag"
+    if: (${{ inputs.do_skaffold_deploy }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    needs:
+      - skaffold_deploy_staging
+    uses: ./.github/workflows/retag_docker.yaml
+    with:
+      repo_url: "${{ inputs.repo_url }}"
+      repo_project: "${{ inputs.repo_project }}"
+      docker_image_name: "${{ inputs.docker_image_name }}"
+      old_tag: "${{ github.ref_name }}"
+      new_tag: "production"
+  skaffold_deploy_production:
+    name: Skaffold deploy into production environment"
+    if: (${{ inputs.do_skaffold_deploy }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    needs:
+      - build_docker_production
+    uses: ./.github/workflows/deploy_skaffold.yaml
+    with:
+      namespace: production
+      profile: production
