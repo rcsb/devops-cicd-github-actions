@@ -25,7 +25,7 @@ spec:
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
-        - name: {{- toYaml . }}
+        - name: {{ . }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
