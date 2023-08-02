@@ -23,7 +23,7 @@ on:
       additional_tag:
         type: string
         default: ""
-        description: "Additional tag to add to then Docker image."
+        description: "Additional tag to add to the Docker image."
   workflow_dispatch:
     inputs:
       repo_url:
@@ -45,7 +45,7 @@ on:
       additional_tag:
         type: string
         default: ""
-        description: "Additional tag to add to then Docker image."
+        description: "Additional tag to add to the Docker image."
 
 jobs:
   build-and-push-images:

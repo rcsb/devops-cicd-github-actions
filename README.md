@@ -81,6 +81,9 @@ jobs:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/workflow-node.yaml@master
     with:
       mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch.
+      repo_url: # The URL of the remote Docker image repository. Defaults to harbor.devops.k8s.rcsb.org.
+      repo_project: # REQUIRED. The name of the project or organization in the remote Docker image repository.
+      docker_image_name: # REQUIRED. The name of the Docker image to create.
 ```
 
 # Docker Projects

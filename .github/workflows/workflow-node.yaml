@@ -8,12 +8,36 @@ on:
         type: string
         default: format('refs/heads/{0}', github.event.repository.default_branch)
         description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch."
+      repo_url:
+        type: string
+        default: "harbor.devops.k8s.rcsb.org"
+        description: "The URL of the remote Docker image repository."
+      repo_project:
+        type: string
+        required: true
+        description: "The name of the project or organization in the remote Docker image repository."
+      docker_image_name:
+        type: string
+        required: true
+        description: "The name of the Docker image to create."
   workflow_dispatch:
     inputs:
       mainline_branch:
         type: string
         default: format('refs/heads/{0}', github.event.repository.default_branch)
         description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch."
+      repo_url:
+        type: string
+        default: "harbor.devops.k8s.rcsb.org"
+        description: "The URL of the remote Docker image repository."
+      repo_project:
+        type: string
+        required: true
+        description: "The name of the project or organization in the remote Docker image repository."
+      docker_image_name:
+        type: string
+        required: true
+        description: "The name of the Docker image to create."
 
 jobs:
   # Build jobs
