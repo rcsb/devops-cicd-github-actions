@@ -47,32 +47,13 @@ jobs:
     uses: ./.github/workflows/run_mvn.yaml
     with:
       script: package jib:build -Djib.to.tags=staging -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true
-  skaffold_deploy_staging:
-    name: "Skaffold deploy into staging namespace"
-    if: (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
-    needs:
-      - build_jib_staging
-    uses: ./.github/workflows/deploy_skaffold.yaml
-    with:
-      namespace: staging
-      profile: staging
   # Production jobs
   # TODO: Increment version of project through workflow. Add this step once we are ready to retire older workflow files.
-  build_docker_production:
+  build_jib_production:
     name: "Build docker image via jib with production tag"
     if: (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
     needs:
-      - skaffold_deploy_staging
+      - build_jib_staging
     uses: ./.github/workflows/run_mvn.yaml
     with:
       script: package jib:build -Djib.to.tags=production -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true
-  skaffold_deploy_production:
-    name: Skaffold deploy into production environment"
-    if: (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
-    needs:
-      - build_docker_production
-    uses: ./.github/workflows/deploy_skaffold.yaml
-    with:
-      namespace: production
-      profile: production
-
