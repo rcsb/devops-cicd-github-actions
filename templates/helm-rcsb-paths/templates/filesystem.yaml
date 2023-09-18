@@ -1,0 +1,54 @@
+{{ if .Values.usePersistentVolume }}
+{{- range tuple "a" "b" }}
+---
+apiVersion: ceph.rook.io/v1
+kind: CephFilesystem
+metadata:
+  name: {{ include "helm_chart.pvname" $ }}-{{ . }}
+  namespace: rook-ceph
+spec:
+  metadataPool:
+    replicated:
+      size: {{ $.Values.rookCeph.metadataPoolSize }}
+  dataPools:
+    - name: replicated
+      replicated:
+        size: {{ $.Values.rookCeph.dataPoolSize }}
+  preserveFilesystemOnDelete: {{ $.Values.rookCeph.preserveFilesystemOnDelete }}
+  metadataServer:
+    activeCount: 1
+    activeStandby: true
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ include "helm_chart.pvname" $ }}-{{ . }}
+provisioner: rook-ceph.cephfs.csi.ceph.com
+parameters:
+  clusterID: rook-ceph
+  fsName: {{ include "helm_chart.pvname" $ }}-{{ . }}
+  pool: {{ include "helm_chart.pvname" $ }}-{{ . }}
+  csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
+  csi.storage.k8s.io/provisioner-secret-namespace: rook-ceph
+  csi.storage.k8s.io/controller-expand-secret-name: rook-csi-cephfs-provisioner
+  csi.storage.k8s.io/controller-expand-secret-namespace: rook-ceph
+  csi.storage.k8s.io/node-stage-secret-name: rook-csi-cephfs-node
+  csi.storage.k8s.io/node-stage-secret-namespace: rook-ceph
+reclaimPolicy: {{ .Values.rookCeph.reclaimPolicy }}
+allowVolumeExpansion: {{ .Values.rookCeph.allowVolumeExpansion }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "helm_chart.pvname" $ }}-{{ . }}
+spec:
+  storageClassName: {{ include "helm_chart.pvname" $ }}-{{ . }}
+  accessModes:
+    {{- range $.Values.rookCeph.pvcAccessModes }}
+    - {{ . }}
+    {{- end }}
+  resources:
+    requests:
+      storage: {{ $.Values.rookCeph.pvcRequestStorageSize }}
+{{ end }}
+{{- end }}

@@ -1,0 +1,36 @@
+{{- range tuple "a" "b" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "helm_chart.fullname" $ }}-{{ . }}
+  labels:
+    {{- include "helm_chart.labels" $ | nindent 4 }}
+    rcsb.org/path: {{ . | quote }}
+spec:
+  type: {{ $.Values.service.type }}
+  ports:
+    - port: {{ $.Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "helm_chart.selectorLabels" $ | nindent 4 }}
+    rcsb.org/path: {{ . | quote }}
+{{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "helm_chart.fullname" . }}
+  labels:
+    {{- include "helm_chart.labels" . | nindent 4 }}
+    rcsb.org/path-operator-managed: "true"
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "helm_chart.selectorLabels" . | nindent 4 }}
