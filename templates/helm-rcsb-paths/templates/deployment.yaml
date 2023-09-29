@@ -26,6 +26,7 @@ spec:
     metadata:
       labels:
         {{- include "helm_chart.selectorLabels" $ | nindent 8 }}
+        rcsb.org/path: {{ . | quote }}
     spec:
       {{- with $.Values.imagePullSecrets }}
       imagePullSecrets:
