@@ -1,4 +1,5 @@
 {{- range tuple "a" "b" }}
+---
 apiVersion: v1
 kind: Service
 metadata:
