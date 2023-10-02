@@ -34,8 +34,8 @@ parameters:
   csi.storage.k8s.io/controller-expand-secret-namespace: rook-ceph
   csi.storage.k8s.io/node-stage-secret-name: rook-csi-cephfs-node
   csi.storage.k8s.io/node-stage-secret-namespace: rook-ceph
-reclaimPolicy: {{ .Values.rookCeph.reclaimPolicy }}
-allowVolumeExpansion: {{ .Values.rookCeph.allowVolumeExpansion }}
+reclaimPolicy: {{ $.Values.rookCeph.reclaimPolicy }}
+allowVolumeExpansion: {{ $.Values.rookCeph.allowVolumeExpansion }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -50,5 +50,5 @@ spec:
   resources:
     requests:
       storage: {{ $.Values.rookCeph.pvcRequestStorageSize }}
-{{ end }}
 {{- end }}
+{{ end }}
