@@ -22,9 +22,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "helm_chart.fullname" . }}
+  annotations:
+    rcsb.org/path-operator-managed: "true"
   labels:
     {{- include "helm_chart.labels" . | nindent 4 }}
-    rcsb.org/path-operator-managed: "true"
 spec:
   type: {{ .Values.service.type }}
   ports:
