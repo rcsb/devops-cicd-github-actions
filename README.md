@@ -25,6 +25,8 @@ name: Run CI/CD Workflow
 
 on:
   push:
+    paths-ignore:
+      - "k8s/**"
   workflow_dispatch:
 
 jobs:
@@ -73,6 +75,8 @@ name: Run CI/CD Workflow
 
 on:
   push:
+    paths-ignore:
+      - "k8s/**"
   workflow_dispatch:
 
 jobs:
@@ -97,6 +101,8 @@ name: Run CI/CD Workflow
 
 on:
   push:
+    paths-ignore:
+      - "k8s/**"
   workflow_dispatch:
 
 jobs:
