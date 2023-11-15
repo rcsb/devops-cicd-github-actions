@@ -88,6 +88,12 @@ jobs:
       repo_url: # The URL of the remote Docker image repository. Defaults to harbor.devops.k8s.rcsb.org.
       repo_project: # REQUIRED. The name of the project or organization in the remote Docker image repository.
       docker_image_name: # REQUIRED. The name of the Docker image to create.
+      do_staging_build: # Build, tag, and push a docker image with the staging tag. Defaults to true.
+      restart_staging_deployment: # Restart the staging K8s deployments for this application. Defaults to false.
+      staging_k8s_deployment_name: # The name of the deployment in the K8s staging namespace to restart. Needs to be defined if restart_staging_deployment is set to true.
+      do_production_build: # Build, tag, and push a docker image with the production tag. Defaults to false.
+      restart_production_deployment: # Restart the production K8s deployment for this application. Defaults to false.
+      production_k8s_deployment_name: # The names of the deployment in the K8s production namespace to restart. Needs to be defined if restart_production_deployment is set to true.
 ```
 
 # Docker Projects

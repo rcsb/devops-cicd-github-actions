@@ -1,0 +1,37 @@
+name: Restart K8s Deployment
+# Restart deployments in K8s with the latest Docker image.
+# To ensure that the deployment always pull the latest version of the tagged image, either use version/commit specific tagged image, or set policy of the deployment to Always pull.
+
+on:
+  workflow_call:
+    inputs:
+      deployment_name:
+        type: string
+        required: true
+        description: "The names of the deployment in the K8s namespace to restart."
+      namespace:
+        type: string
+        required: true
+        description: "The namespace of the deployment in K8s to restart."
+  workflow_dispatch:
+    inputs:
+      deployment_name:
+        type: string
+        required: true
+        description: "The names of the deployment in the K8s namespace to restart."
+      namespace:
+        type: string
+        required: true
+        description: "The namespace of the deployment in K8s to restart."
+
+jobs:
+  restart_deployments:
+    name: "Restart deployment."
+    runs-on:
+      - "self-hosted"
+      - "kubectl"
+    steps:
+      - name: Execute rolling restart
+        run: |
+          kubectl --namespace ${{ inputs.namespace }} rollout restart deployment/${{ inputs.deployment_name }}
+          kubectl --namespace ${{ inputs.namespace }} rollout status deployment/${{ inputs.deployment_name }} --watch=true
