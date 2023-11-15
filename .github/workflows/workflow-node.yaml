@@ -22,11 +22,11 @@ on:
         description: "The name of the Docker image to create."
       do_staging_build:
         type: boolean
-        default: true
+        default: false
         description: "Build, tag, and push a docker image with the staging tag."
       restart_staging_deployment:
         type: boolean
-        default: true
+        default: false
         description: "Restart the staging K8s deployments for this application."
       staging_k8s_deployment_name:
         type: string
@@ -34,11 +34,11 @@ on:
         description: "The name of the deployment in the K8s staging namespace to restart."
       do_production_build:
         type: boolean
-        default: true
+        default: false
         description: "Build, tag, and push a docker image with the production tag."
       restart_production_deployment:
         type: boolean
-        default: true
+        default: false
         description: "Restart the production K8s deployment for this application."
       production_k8s_deployment_name:
         type: string
@@ -64,7 +64,7 @@ on:
         description: "The name of the Docker image to create."
       do_staging_build:
         type: boolean
-        default: true
+        default: false
         description: "Build, tag, and push a docker image with the staging tag."
       restart_staging_deployment:
         type: boolean
