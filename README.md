@@ -37,6 +37,39 @@ jobs:
       mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch.
 ```
 
+Note that because some of the current RCSB Java applications are tightly coupled, production image release must be separately scheduled and deployed in tandem with other Java applications. For these applications, we should schedule a build of the Java application before the weekly release, and have the weekly update workflow handle restarting the deployments and utilize the new images.
+
+Add this file into your repository as `.github/workflows/scheduled-production-release.yaml` in order to have scheduled builds of the mainline branch:
+
+```yaml
+name: Weekly production release
+
+on:
+  schedule:
+    # Time is based on UTC timezone
+    #  ┌───────────── minute (0 - 59)
+    #  │ ┌───────────── hour (0 - 23)
+    #  │ │ ┌───────────── day of the month (1 - 31)
+    #  │ │ │ ┌───────────── month (1 - 12 or JAN-DEC)
+    #  │ │ │ │ ┌───────────── day of the week (0 - 6 or SUN-SAT)
+    #  │ │ │ │ │
+    #  * * * * *
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '0 18 * * TUE'
+    - cron:  '0 20 * * TUE'
+    - cron:  '0 23 * * TUE'
+  workflow_dispatch:
+
+jobs:
+  run-workflow:
+    name: "Run automated workflow for production release"
+    uses: rcsb/devops-cicd-github-actions/.github/workflows/workflow-java.yaml@master
+    with:
+      mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch.
+      do_staging_release: false
+      do_production_release: true
+```
+
 # Node Projects
 
 ## .github/workflows/nightly-test.yaml
