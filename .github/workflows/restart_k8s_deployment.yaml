@@ -13,6 +13,10 @@ on:
         type: string
         required: true
         description: "The namespace of the deployment in K8s to restart."
+      region:
+        type: string
+        required: true
+        description: "The region of the cluster containing the deployment."
   workflow_dispatch:
     inputs:
       deployment_name:
@@ -23,13 +27,17 @@ on:
         type: string
         required: true
         description: "The namespace of the deployment in K8s to restart."
+      region:
+        type: string
+        required: true
+        description: "The region of the cluster containing the deployment."
 
 jobs:
   restart_deployments:
     name: "Restart deployment."
     runs-on:
       - "self-hosted"
-      - "kubectl"
+      - "kubectl-${{ inputs.region }}"
     steps:
       - name: Execute rolling restart
         run: |

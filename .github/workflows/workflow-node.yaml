@@ -143,9 +143,14 @@ jobs:
     needs:
       - build_docker_staging
     uses: ./.github/workflows/restart_k8s_deployment.yaml
+    strategy:
+      fail-fast: false
+      matrix:
+        region: [west, east]
     with:
       deployment_name: "${{ inputs.staging_k8s_deployment_name }}"
       namespace: "staging"
+      region: "${{ matrix.region }}"
   # Production jobs
   build_docker_production:
     name: "Push docker image with production tag"
@@ -165,6 +170,11 @@ jobs:
     needs:
       - build_docker_production
     uses: ./.github/workflows/restart_k8s_deployment.yaml
+    strategy:
+      fail-fast: false
+      matrix:
+        region: [ west, east ]
     with:
       deployment_name: "${{ inputs.production_k8s_deployment_name }}"
       namespace: "production"
+      region: "${{ matrix.region }}"
