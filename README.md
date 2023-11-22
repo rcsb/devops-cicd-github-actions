@@ -35,6 +35,8 @@ jobs:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/workflow-java.yaml@master
     with:
       mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch.
+      do_staging_release: # Build and push a staging tagged container image for this application on commits to the mainline_branch. Defaults to true.
+      do_production_release: # Build and push a production tagged container image for this application on commits to the mainline_branch. Defaults to false.
 ```
 
 Note that because some of the current RCSB Java applications are tightly coupled, production image release must be separately scheduled and deployed in tandem with other Java applications. For these applications, we should schedule a build of the Java application before the weekly release, and have the weekly update workflow handle restarting the deployments and utilize the new images.
@@ -121,11 +123,11 @@ jobs:
       repo_url: # The URL of the remote Docker image repository. Defaults to harbor.devops.k8s.rcsb.org.
       repo_project: # REQUIRED. The name of the project or organization in the remote Docker image repository.
       docker_image_name: # REQUIRED. The name of the Docker image to create.
-      do_staging_build: # Build, tag, and push a docker image with the staging tag. Defaults to false.
-      restart_staging_deployment: # Restart the staging K8s deployments for this application. Defaults to false.
+      do_staging_build: # Build, tag, and push a docker image with the staging tag on commits to the mainline branch. Defaults to true.
+      restart_staging_deployment: # Restart the staging K8s deployments for this application on commits to the mainline branch. Defaults to false.
       staging_k8s_deployment_name: # The name of the deployment in the K8s staging namespace to restart. Needs to be defined if restart_staging_deployment is set to true.
-      do_production_build: # Build, tag, and push a docker image with the production tag. Defaults to false.
-      restart_production_deployment: # Restart the production K8s deployment for this application. Defaults to false.
+      do_production_build: # Build, tag, and push a docker image with the production tag on commits to the mainline branch. Defaults to true.
+      restart_production_deployment: # Restart the production K8s deployment for this application on commits to the mainline branch. Defaults to false.
       production_k8s_deployment_name: # The names of the deployment in the K8s production namespace to restart. Needs to be defined if restart_production_deployment is set to true.
 ```
 
