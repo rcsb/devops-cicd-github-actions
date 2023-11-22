@@ -152,6 +152,23 @@ jobs:
       namespace: "staging"
       region: "${{ matrix.region }}"
   # Production jobs
+  debug:
+    name: "Debug conditionals"
+    needs:
+      - build_docker_staging
+    steps:
+      - name: "Output inputs and refs"
+        run: |
+          echo "inputs.do_production_build: ${{ inputs.do_production_build }}"
+          echo "Is inputs.do_production_build == 'true': ${{ inputs.do_production_build == 'true' }}"
+          echo "github.ref: ${{ github.ref }}"
+          echo "inputs.mainline_branch: ${{ inputs.mainline_branch }}"
+          echo "formatted mainline_branch: format('refs/heads/{0}', inputs.mainline_branch)"
+          echo "Is github.ref == format('refs/heads/{0}', inputs.mainline_branch): ${{ github.ref == format('refs/heads/{0}', inputs.mainline_branch) }}"
+          echo "github.event_name: ${{ github.event_name }}"
+          echo "Is github.event_name != 'pull_request': ${{ github.event_name != 'pull_request' }}"
+          echo "inputs.production_k8s_deployment_name: ${{ inputs.production_k8s_deployment_name }}"
+          echo "Is inputs.production_k8s_deployment_name != '': ${{ inputs.production_k8s_deployment_name != '' }}"
   build_docker_production:
     name: "Push docker image with production tag"
     if: inputs.do_production_build == 'true' && github.ref == format('refs/heads/{0}', inputs.mainline_branch) && github.event_name != 'pull_request'
