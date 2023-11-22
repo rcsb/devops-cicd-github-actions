@@ -154,7 +154,7 @@ jobs:
   # Production jobs
   build_docker_production:
     name: "Push docker image with production tag"
-    if: (${{ inputs.do_production_build == 'true' }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    if: inputs.do_production_build == 'true' && github.ref == format('refs/heads/{0}', inputs.mainline_branch) && github.event_name != 'pull_request'
     needs:
       - build_docker_staging
     uses: ./.github/workflows/retag_docker.yaml
@@ -166,7 +166,7 @@ jobs:
       new_tag: "production"
   restart_production_k8s_deployment:
     name: "Restart deployment in K8s production namespace"
-    if: (${{ inputs.restart_production_deployment == 'true' }}) && (${{ inputs.production_k8s_deployment_name != '' }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    if: inputs.restart_production_deployment == 'true' && inputs.production_k8s_deployment_name != '' && github.ref == format('refs/heads/{0}', inputs.mainline_branch) && github.event_name != 'pull_request'
     needs:
       - build_docker_production
     uses: ./.github/workflows/restart_k8s_deployment.yaml
