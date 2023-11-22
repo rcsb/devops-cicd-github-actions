@@ -11,11 +11,11 @@ on:
       do_staging_release:
         type: boolean
         default: true
-        description: "Build and push a staging tagged container image for this application."
+        description: "Build and push a staging tagged container image for this application on commits to the mainline_branch."
       do_production_release:
         type: boolean
         default: false
-        description: "Build and push a production tagged container image for this application."
+        description: "Build and push a production tagged container image for this application on commits to the mainline_branch."
   workflow_dispatch:
     inputs:
       mainline_branch:
@@ -25,11 +25,11 @@ on:
       do_staging_release:
         type: boolean
         default: true
-        description: "Build and push a staging tagged container image for this application."
+        description: "Build and push a staging tagged container image for this application on commits to the mainline_branch."
       do_production_release:
         type: boolean
         default: false
-        description: "Build and push a production tagged container image for this application."
+        description: "Build and push a production tagged container image for this application on commits to the mainline_branch."
 
 jobs:
   # Test projects
@@ -57,7 +57,7 @@ jobs:
   # Staging jobs
   build_jib_staging:
     name: "Build docker image via jib with staging tag"
-    if: (${{ inputs.do_staging_release }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    if: (${{ inputs.do_staging_release == 'true' }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
     needs:
       - test_mvn
       - build_mvn
@@ -68,7 +68,7 @@ jobs:
   # TODO: Increment version of project through workflow. Add this step once we are ready to retire older workflow files.
   build_jib_production:
     name: "Build docker image via jib with production tag"
-    if: (${{ inputs.do_production_release }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    if: (${{ inputs.do_production_release == 'true' }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
     needs:
       - test_mvn
       - build_mvn

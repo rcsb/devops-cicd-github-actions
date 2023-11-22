@@ -22,28 +22,28 @@ on:
         description: "The name of the Docker image to create."
       do_staging_build:
         type: boolean
-        default: false
-        description: "Build, tag, and push a docker image with the staging tag."
+        default: true
+        description: "Build, tag, and push a docker image with the staging tag on commits to the mainline branch."
       restart_staging_deployment:
         type: boolean
         default: false
-        description: "Restart the staging K8s deployments for this application."
+        description: "Restart the staging K8s deployments for this application on commits to the mainline branch."
       staging_k8s_deployment_name:
         type: string
         required: false
-        description: "The name of the deployment in the K8s staging namespace to restart."
+        description: "The name of the deployment in the K8s staging namespace to restart. Needed if restart_staging_deployment is true."
       do_production_build:
         type: boolean
-        default: false
-        description: "Build, tag, and push a docker image with the production tag."
+        default: true
+        description: "Build, tag, and push a docker image with the production tag on commits to the mainline branch."
       restart_production_deployment:
         type: boolean
         default: false
-        description: "Restart the production K8s deployment for this application."
+        description: "Restart the production K8s deployment for this application on commits to the mainline branch."
       production_k8s_deployment_name:
         type: string
         required: false
-        description: "The names of the deployment in the K8s production namespace to restart."
+        description: "The names of the deployment in the K8s production namespace to restart. Needed if production_k8s_deployment_name is true."
   workflow_dispatch:
     inputs:
       mainline_branch:
@@ -64,28 +64,28 @@ on:
         description: "The name of the Docker image to create."
       do_staging_build:
         type: boolean
-        default: false
-        description: "Build, tag, and push a docker image with the staging tag."
+        default: true
+        description: "Build, tag, and push a docker image with the staging tag on commits to the mainline branch."
       restart_staging_deployment:
         type: boolean
         default: false
-        description: "Restart the staging K8s deployments for this application."
+        description: "Restart the staging K8s deployments for this application on commits to the mainline branch."
       staging_k8s_deployment_name:
         type: string
         required: false
-        description: "The name of the deployment in the K8s staging namespace to restart."
+        description: "The name of the deployment in the K8s staging namespace to restart. Needed if restart_staging_deployment is true."
       do_production_build:
         type: boolean
-        default: false
-        description: "Build, tag, and push a docker image with the production tag."
+        default: true
+        description: "Build, tag, and push a docker image with the production tag on commits to the mainline branch."
       restart_production_deployment:
         type: boolean
         default: false
-        description: "Restart the production K8s deployment for this application."
+        description: "Restart the production K8s deployment for this application on commits to the mainline branch."
       production_k8s_deployment_name:
         type: string
         required: false
-        description: "The names of the deployment in the K8s production namespace to restart."
+        description: "The names of the deployment in the K8s production namespace to restart. Needed if production_k8s_deployment_name is true."
 
 jobs:
   # Build jobs
@@ -126,7 +126,7 @@ jobs:
   # Staging jobs
   build_docker_staging:
     name: "Push docker image with staging tag"
-    if: (${{ inputs.do_staging_build }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    if: (${{ inputs.do_staging_build == 'true' }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
     needs:
       - test_npm
       - build_docker
@@ -139,7 +139,7 @@ jobs:
       new_tag: "staging"
   restart_staging_k8s_deployment:
     name: "Restart deployment in K8s staging namespace"
-    if: (${{ inputs.restart_staging_deployment }}) && (${{ inputs.staging_k8s_deployment_name != '' }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    if: (${{ inputs.restart_staging_deployment == 'true' }}) && (${{ inputs.staging_k8s_deployment_name != '' }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
     needs:
       - build_docker_staging
     uses: ./.github/workflows/restart_k8s_deployment.yaml
@@ -154,7 +154,7 @@ jobs:
   # Production jobs
   build_docker_production:
     name: "Push docker image with production tag"
-    if: (${{ inputs.do_production_build }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    if: (${{ inputs.do_production_build == 'true' }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
     needs:
       - build_docker_staging
     uses: ./.github/workflows/retag_docker.yaml
@@ -166,7 +166,7 @@ jobs:
       new_tag: "production"
   restart_production_k8s_deployment:
     name: "Restart deployment in K8s production namespace"
-    if: (${{ inputs.restart_production_deployment }}) && (${{ inputs.production_k8s_deployment_name != '' }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    if: (${{ inputs.restart_production_deployment == 'true' }}) && (${{ inputs.production_k8s_deployment_name != '' }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
     needs:
       - build_docker_production
     uses: ./.github/workflows/restart_k8s_deployment.yaml
