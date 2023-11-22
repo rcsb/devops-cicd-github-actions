@@ -156,6 +156,9 @@ jobs:
     name: "Debug conditionals"
     needs:
       - build_docker_staging
+    runs-on:
+      - "self-hosted"
+      - "node"
     steps:
       - name: "Output inputs and refs"
         run: |
