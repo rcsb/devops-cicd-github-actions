@@ -22,7 +22,7 @@ on:
         description: "The name of the Docker image to create."
       do_staging_build:
         type: boolean
-        default: true
+        default: false
         description: "Build, tag, and push a docker image with the staging tag on commits to the mainline branch."
       restart_staging_deployment:
         type: boolean
@@ -64,7 +64,7 @@ on:
         description: "The name of the Docker image to create."
       do_staging_build:
         type: boolean
-        default: true
+        default: false
         description: "Build, tag, and push a docker image with the staging tag on commits to the mainline branch."
       restart_staging_deployment:
         type: boolean
@@ -89,6 +89,27 @@ on:
 
 jobs:
   # Build jobs
+  debug:
+    name: "Debug conditionals"
+    runs-on:
+      - "self-hosted"
+      - "node"
+    steps:
+      - name: "Output inputs and refs"
+        run: |
+          echo "inputs.do_production_build: ${{ inputs.do_production_build }}"
+          echo "github.ref: ${{ github.ref }}"
+          echo "inputs.mainline_branch: ${{ inputs.mainline_branch }}"
+          echo "formatted mainline_branch: ${{ format('refs/heads/{0}', inputs.mainline_branch) }}"
+          echo "Is github.ref == format('refs/heads/{0}', inputs.mainline_branch): ${{ github.ref == format('refs/heads/{0}', inputs.mainline_branch) }}"
+          echo "github.event_name: ${{ github.event_name }}"
+          echo "Is github.event_name != 'pull_request': ${{ github.event_name != 'pull_request' }}"
+          echo "inputs.production_k8s_deployment_name: ${{ inputs.production_k8s_deployment_name }}"
+          echo "Is inputs.production_k8s_deployment_name != '': ${{ inputs.production_k8s_deployment_name != '' }}"
+          echo "inputs.do_staging_build: ${{ inputs.do_staging_build }}"
+          echo "Is inputs.do_staging_build == 'true': ${{ inputs.do_staging_build == 'true' }}"
+          echo "inputs.restart_staging_deployment: ${{ inputs.restart_staging_deployment }}"
+          echo "Is inputs.restart_staging_deployment == 'true': ${{ inputs.restart_staging_deployment == 'true' }}"
   build_npm:
     name: "Build via NPM"
     uses: ./.github/workflows/run_npm.yaml
@@ -152,25 +173,6 @@ jobs:
       namespace: "staging"
       region: "${{ matrix.region }}"
   # Production jobs
-  debug:
-    name: "Debug conditionals"
-    needs:
-      - build_docker_staging
-    runs-on:
-      - "self-hosted"
-      - "node"
-    steps:
-      - name: "Output inputs and refs"
-        run: |
-          echo "inputs.do_production_build: ${{ inputs.do_production_build }}"
-          echo "github.ref: ${{ github.ref }}"
-          echo "inputs.mainline_branch: ${{ inputs.mainline_branch }}"
-          echo "formatted mainline_branch: ${{ format('refs/heads/{0}', inputs.mainline_branch) }}"
-          echo "Is github.ref == format('refs/heads/{0}', inputs.mainline_branch): ${{ github.ref == format('refs/heads/{0}', inputs.mainline_branch) }}"
-          echo "github.event_name: ${{ github.event_name }}"
-          echo "Is github.event_name != 'pull_request': ${{ github.event_name != 'pull_request' }}"
-          echo "inputs.production_k8s_deployment_name: ${{ inputs.production_k8s_deployment_name }}"
-          echo "Is inputs.production_k8s_deployment_name != '': ${{ inputs.production_k8s_deployment_name != '' }}"
   build_docker_production:
     name: "Push docker image with production tag"
     if: inputs.do_production_build && github.ref == format('refs/heads/{0}', inputs.mainline_branch) && github.event_name != 'pull_request'
