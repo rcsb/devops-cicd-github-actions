@@ -30,7 +30,7 @@ jobs:
       - "self-hosted"
       - "java"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: "Execute goal"
         run: mvn ${{ inputs.script }}
       - name: "Publish test reports"

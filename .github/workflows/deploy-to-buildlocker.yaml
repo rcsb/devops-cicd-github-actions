@@ -20,7 +20,7 @@ jobs:
       - self-hosted
       - java
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build
         run: |
           mvn clean install --no-transfer-progress -Dmaven.test.skip=true
@@ -36,7 +36,7 @@ jobs:
       - self-hosted
       - java
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build
         run: |
           mvn clean install --no-transfer-progress -Dmaven.test.skip=true
@@ -52,7 +52,7 @@ jobs:
       - self-hosted
       - node
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build
         run: |
           npm ci

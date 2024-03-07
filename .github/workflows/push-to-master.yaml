@@ -30,7 +30,7 @@ jobs:
       minor: ${{ steps.minor.outputs.minor }}
       patch: ${{ steps.patch.outputs.patch }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - id: major
         run: |
           echo ::set-output name=major::$(mvn build-helper:parse-version help:evaluate -Dexpression=parsedVersion.majorVersion -q -DforceStdout --no-transfer-progress)

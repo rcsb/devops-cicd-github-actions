@@ -18,7 +18,7 @@ jobs:
       - self-hosted
       - java
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build and Push via jib
         run: |
           mvn package jib:build -Djib.to.tags=${{ inputs.tag }} -Djib.target.namespace=${{ inputs.namespace }} --no-transfer-progress -Dmaven.test.skip=true

@@ -8,7 +8,7 @@ jobs:
   test:
     runs-on: ["self-hosted","java"]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: |
           java --version
           mvn --version

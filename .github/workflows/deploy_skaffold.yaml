@@ -19,7 +19,7 @@ jobs:
       - self-hosted
       - skaffold
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Skaffold Deploy
         run: |
           skaffold deploy --namespace=${{ inputs.namespace }} --profile=${{ inputs.profile }}
