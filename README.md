@@ -129,6 +129,7 @@ jobs:
       do_production_build: # Build, tag, and push a docker image with the production tag on commits to the mainline branch. Defaults to true.
       restart_production_deployment: # Restart the production K8s deployment for this application on commits to the mainline branch. Defaults to false.
       production_k8s_deployment_name: # The names of the deployment in the K8s production namespace to restart. Needs to be defined if restart_production_deployment is set to true.
+      node_version: #The nodejs version of the runner to use. Defaults to 16.
 ```
 
 # Docker Projects
