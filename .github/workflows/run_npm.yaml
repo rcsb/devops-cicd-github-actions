@@ -8,19 +8,27 @@ on:
         type: string
         required: true
         description: "The script name as defined in package.json."
+      node_version:
+        type: string
+        required: true
+        description: "The nodejs version of the runner to use."
   workflow_dispatch:
     inputs:
       script:
         type: string
         required: true
         description: "The script name as defined in package.json."
+      node_version:
+        type: string
+        required: true
+        description: "The nodejs version of the runner to use."
 
 jobs:
   run-npm:
     name: "Run NPM ${{ inputs.script }}"
     runs-on:
       - "self-hosted"
-      - "node"
+      - "node-${{ inputs.node_version }}"
     steps:
       - uses: actions/checkout@v4
       - name: "Install dependencies"

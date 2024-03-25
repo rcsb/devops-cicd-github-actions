@@ -44,6 +44,10 @@ on:
         type: string
         required: false
         description: "The names of the deployment in the K8s production namespace to restart. Needed if production_k8s_deployment_name is true."
+      node_version:
+        type: string
+        default: "16"
+        description: "The nodejs version of the runner to use. Defaults to 16."
   workflow_dispatch:
     inputs:
       mainline_branch:
@@ -86,6 +90,10 @@ on:
         type: string
         required: false
         description: "The names of the deployment in the K8s production namespace to restart. Needed if production_k8s_deployment_name is true."
+      node_version:
+        type: string
+        default: "16"
+        description: "The nodejs version of the runner to use. Defaults to 16."
 
 jobs:
   # Build jobs
@@ -93,7 +101,7 @@ jobs:
     name: "Debug conditionals"
     runs-on:
       - "self-hosted"
-      - "node"
+      - "node-${{ inputs.node_version }}"
     steps:
       - name: "Output inputs and refs"
         run: |
@@ -115,11 +123,13 @@ jobs:
     uses: ./.github/workflows/run_npm.yaml
     with:
       script: "build"
+      node_version: ${{ inputs.node_version }}
   lint_npm:
     name: "Lint via NPM"
     uses: ./.github/workflows/run_npm.yaml
     with:
       script: "lint"
+      node_version: ${{ inputs.node_version }}
   lint_docker:
     name: "Lint Dockerfile"
     uses: ./.github/workflows/lint_docker.yaml
@@ -133,6 +143,7 @@ jobs:
     uses: ./.github/workflows/run_npm.yaml
     with:
       script: "test"
+      node_version: ${{ inputs.node_version }}
   build_docker:
     name: "Build docker image"
     needs:
