@@ -12,6 +12,9 @@ on:
       branch:
         type: string
         required: false
+      node_version:
+        type: string
+        default: "16"
 
 jobs:
   deploy-build-locker-jar:
@@ -50,7 +53,7 @@ jobs:
     if: ${{ inputs.type =='node' }}
     runs-on:
       - self-hosted
-      - node
+      - "node-${{ inputs.node_version }}"
     steps:
       - uses: actions/checkout@v4
       - name: Build

@@ -9,6 +9,9 @@ on:
       type:
         type: string
         required: true
+      node_version:
+        type: string
+        default: "16"
   workflow_dispatch:
     inputs:
       branch:
@@ -17,10 +20,13 @@ on:
       type:
         type: string
         required: true
+      node_version:
+        type: string
+        default: "16"
 
 jobs:
   cypress-test:
-    runs-on: ["self-hosted","node"]
+    runs-on: ["self-hosted","node-${{ inputs.node_version }}"]
     steps:
       - uses: actions/checkout@v4
       - name: Build

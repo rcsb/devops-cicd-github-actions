@@ -12,6 +12,9 @@ on:
       type:
         type: string
         required: false
+      node_version:
+        type: string
+        default: "16"
 
 jobs:
   build-and-push-node-to-buildlocker:
@@ -20,3 +23,4 @@ jobs:
       distribution: ${{ inputs.distribution }}
       branch: ${{ inputs.branch }}
       type: node
+      node_version: ${{ inputs.node_version }}
