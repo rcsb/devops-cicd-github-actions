@@ -10,7 +10,7 @@ on:
         description: "The script name as defined in package.json."
       node_version:
         type: string
-        required: true
+        default: "16"
         description: "The nodejs version of the runner to use."
   workflow_dispatch:
     inputs:
@@ -20,7 +20,7 @@ on:
         description: "The script name as defined in package.json."
       node_version:
         type: string
-        required: true
+        default: "16"
         description: "The nodejs version of the runner to use."
 
 jobs:
