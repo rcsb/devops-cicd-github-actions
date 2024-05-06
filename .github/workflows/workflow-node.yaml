@@ -142,7 +142,7 @@ jobs:
     name: "Push docker image with staging tag"
     if: |
       github.event.inputs.do_staging_build == 'true' &&
-      github.ref == "refs/heads/${{ inputs.mainline_branch }}" &&
+      github.ref == format('refs/heads/{0}', github.event.inputs.mainline_branch) &&
       github.event_name != 'pull_request'
     needs:
       - test_npm
@@ -158,8 +158,8 @@ jobs:
     name: "Restart deployment in K8s staging namespace"
     if: |
       github.event.inputs.restart_staging_deployment == 'true' &&
-      github.event.inputs.staging_k8s_deployment_name != '' &&
-      github.ref == "refs/heads/${{ inputs.mainline_branch }}" &&
+      github.event.inputs.staging_k8s_deployment_name &&
+      github.ref == format('refs/heads/{0}', github.event.inputs.mainline_branch) &&
       github.event_name != 'pull_request'
     needs:
       - build_docker_staging
@@ -192,7 +192,7 @@ jobs:
     name: "Restart deployment in K8s production namespace"
     if: |
       github.event.inputs.restart_production_deployment == 'true' &&
-      github.event.inputs.production_k8s_deployment_name != '' &&
+      github.event.inputs.production_k8s_deployment_name &&
       github.ref == format('refs/heads/{0}', inputs.mainline_branch) &&
       github.event_name != 'pull_request'
     needs:
