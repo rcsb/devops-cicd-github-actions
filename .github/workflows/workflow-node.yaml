@@ -96,12 +96,10 @@ jobs:
           echo "Is github.ref == format('refs/heads/{0}', inputs.mainline_branch): ${{ github.ref == format('refs/heads/{0}', inputs.mainline_branch) }}"
           echo "github.event_name: ${{ github.event_name }}"
           echo "Is github.event_name != 'pull_request': ${{ github.event_name != 'pull_request' }}"
-          echo "inputs.production_k8s_deployment_name: ${{ inputs.production_k8s_deployment_name }}"
-          echo "Is inputs.production_k8s_deployment_name != '': ${{ inputs.production_k8s_deployment_name != '' }}"
           echo "inputs.do_staging_build: ${{ inputs.do_staging_build }}"
-          echo "Is inputs.do_staging_build == true: ${{ inputs.do_staging_build == true }}"
           echo "inputs.restart_staging_deployment: ${{ inputs.restart_staging_deployment }}"
-          echo "Is inputs.restart_staging_deployment == true: ${{ inputs.restart_staging_deployment == true }}"
+          echo "inputs.staging_k8s_deployment_name: ${{ inputs.staging_k8s_deployment_name }}"
+          echo "inputs.production_k8s_deployment_name: ${{ inputs.production_k8s_deployment_name }}"
   build_npm:
     name: "Build via NPM"
     uses: ./.github/workflows/run_npm.yaml
@@ -142,7 +140,10 @@ jobs:
   # Staging jobs
   build_docker_staging:
     name: "Push docker image with staging tag"
-    if: (inputs.do_staging_build == true) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    if: |
+      github.event.inputs.do_staging_build == 'true' &&
+      github.ref == "refs/heads/${{ inputs.mainline_branch }}" &&
+      github.event_name != 'pull_request'
     needs:
       - test_npm
       - build_docker
@@ -155,7 +156,11 @@ jobs:
       new_tag: "staging"
   restart_staging_k8s_deployment:
     name: "Restart deployment in K8s staging namespace"
-    if: (inputs.restart_staging_deployment == true) && (inputs.staging_k8s_deployment_name != '') && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    if: |
+      github.event.inputs.restart_staging_deployment == 'true' &&
+      github.event.inputs.staging_k8s_deployment_name != '' &&
+      github.ref == "refs/heads/${{ inputs.mainline_branch }}" &&
+      github.event_name != 'pull_request'
     needs:
       - build_docker_staging
     uses: ./.github/workflows/restart_k8s_deployment.yaml
@@ -170,7 +175,10 @@ jobs:
   # Production jobs
   build_docker_production:
     name: "Push docker image with production tag"
-    if: inputs.do_production_build && (github.ref == format('refs/heads/{0}', inputs.mainline_branch)) && github.event_name != 'pull_request'
+    if: |
+      github.event.inputs.do_production_build == 'true' &&
+      github.ref == format('refs/heads/{0}', inputs.mainline_branch) &&
+      github.event_name != 'pull_request'
     needs:
       - build_docker_staging
     uses: ./.github/workflows/retag_docker.yaml
@@ -182,7 +190,11 @@ jobs:
       new_tag: "production"
   restart_production_k8s_deployment:
     name: "Restart deployment in K8s production namespace"
-    if: inputs.restart_production_deployment && inputs.production_k8s_deployment_name != '' && github.ref == format('refs/heads/{0}', inputs.mainline_branch) && github.event_name != 'pull_request'
+    if: |
+      github.event.inputs.restart_production_deployment == 'true' &&
+      github.event.inputs.production_k8s_deployment_name != '' &&
+      github.ref == format('refs/heads/{0}', inputs.mainline_branch) &&
+      github.event_name != 'pull_request'
     needs:
       - build_docker_production
     uses: ./.github/workflows/restart_k8s_deployment.yaml
