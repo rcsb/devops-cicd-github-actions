@@ -66,7 +66,7 @@ jobs:
   build_jib_staging:
     name: "Build docker image via jib with staging tag"
     if: |
-      github.event.inputs.do_staging_release == 'true' &&
+      github.event.inputs.do_staging_build == 'true' &&
       github.ref == format('refs/heads/{0}', github.event.inputs.mainline_branch) &&
       github.event_name != 'pull_request'
     needs:
@@ -80,7 +80,7 @@ jobs:
   build_jib_production:
     name: "Build docker image via jib with production tag"
     if: |
-      github.event.inputs.do_production_release == 'true' &&
+      github.event.inputs.do_production_build == 'true' &&
       github.ref == format('refs/heads/{0}', github.event.inputs.mainline_branch) &&
       github.event_name != 'pull_request'
     needs:
