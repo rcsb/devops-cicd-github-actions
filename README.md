@@ -16,6 +16,33 @@ For more in-depth documentation on the workflow `.yaml` files, see [this link](h
 
 # Java Projects
 
+## Jib plugin
+
+Java applications Docker images are built using the Google Jib Maven plugin (https://github.com/GoogleContainerTools/jib). At a minimum, to leverage this plugin and have the CI/CD pipeline automate optimized builds of the Docker container image, ensure that the following plugin directive is included in the application `pom.xml` file:
+
+```xml
+<project>
+  ...
+  <build>
+    <plugins>
+      ...
+      <plugin>
+        <groupId>com.google.cloud.tools</groupId>
+        <artifactId>jib-maven-plugin</artifactId>
+        <version>3.4.1</version>
+        <configuration>
+            <to>
+                <image>harbor.devops.k8s.rcsb.org/${jib.target.namespace}/[docker application image name]</image>
+            </to>
+        </configuration>
+      </plugin>
+      ...
+    </plugins>
+  </build>
+  ...
+</project>
+```
+
 ## .github/workflows/workflow-java.yaml
 
 Add this file into your repository as `.github/workflows/workflow-java.yaml` in order to have automated builds run for all branches:
@@ -35,8 +62,9 @@ jobs:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/workflow-java.yaml@master
     with:
       mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch.
-      do_staging_release: # Build and push a staging tagged container image for this application on commits to the mainline_branch. Defaults to true.
-      do_production_release: # Build and push a production tagged container image for this application on commits to the mainline_branch. Defaults to false.
+      docker_namespace: # The Docker image namespace built by jib. Defaults to 'rcsb'.
+      do_staging_build: # Build and push a staging tagged container image for this application on commits to the mainline_branch. Defaults to false.
+      do_production_build: # Build and push a production tagged container image for this application on commits to the mainline_branch. Defaults to false.
 ```
 
 Note that because some of the current RCSB Java applications are tightly coupled, production image release must be separately scheduled and deployed in tandem with other Java applications. For these applications, we should schedule a build of the Java application before the weekly release, and have the weekly update workflow handle restarting the deployments and utilize the new images.
@@ -68,8 +96,9 @@ jobs:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/workflow-java.yaml@master
     with:
       mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch.
-      do_staging_release: false
-      do_production_release: true
+      docker_namespace: # The Docker image namespace built by jib. Defaults to 'rcsb'.
+      do_staging_build: false
+      do_production_build: true
 ```
 
 # Node Projects

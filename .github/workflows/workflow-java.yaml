@@ -8,11 +8,15 @@ on:
         type: string
         default: format('refs/heads/{0}', github.event.repository.default_branch)
         description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch."
-      do_staging_release:
+      docker_namespace:
+        type: string
+        default: "rcsb"
+        description: "The Docker image namespace built by jib. Defaults to 'rcsb'."
+      do_staging_build:
         type: boolean
-        default: true
+        default: false
         description: "Build and push a staging tagged container image for this application on commits to the mainline_branch."
-      do_production_release:
+      do_production_build:
         type: boolean
         default: false
         description: "Build and push a production tagged container image for this application on commits to the mainline_branch."
@@ -22,11 +26,15 @@ on:
         type: string
         default: format('refs/heads/{0}', github.event.repository.default_branch)
         description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch."
-      do_staging_release:
+      docker_namespace:
+        type: string
+        default: "rcsb"
+        description: "The Docker image namespace built by jib. Defaults to 'rcsb'."
+      do_staging_build:
         type: boolean
-        default: true
+        default: false
         description: "Build and push a staging tagged container image for this application on commits to the mainline_branch."
-      do_production_release:
+      do_production_build:
         type: boolean
         default: false
         description: "Build and push a production tagged container image for this application on commits to the mainline_branch."
@@ -53,25 +61,31 @@ jobs:
       - build_mvn
     uses: ./.github/workflows/run_mvn.yaml
     with:
-      script: package jib:build -Djib.to.tags=${{ github.ref_name }} -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true
+      script: package jib:build -Djib.to.tags=${{ github.ref_name }} -Djib.target.namespace=${{ github.event.inputs.docker_namespace }} --no-transfer-progress -Dmaven.test.skip=true
   # Staging jobs
   build_jib_staging:
     name: "Build docker image via jib with staging tag"
-    if: (${{ inputs.do_staging_release == 'true' }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    if: |
+      github.event.inputs.do_staging_release == 'true' &&
+      github.ref == format('refs/heads/{0}', github.event.inputs.mainline_branch) &&
+      github.event_name != 'pull_request'
     needs:
       - test_mvn
       - build_mvn
     uses: ./.github/workflows/run_mvn.yaml
     with:
-      script: package jib:build -Djib.to.tags=staging -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true
+      script: package jib:build -Djib.to.tags=staging -Djib.target.namespace=${{ github.event.inputs.docker_namespace }} --no-transfer-progress -Dmaven.test.skip=true
   # Production jobs
   # TODO: Increment version of project through workflow. Add this step once we are ready to retire older workflow files.
   build_jib_production:
     name: "Build docker image via jib with production tag"
-    if: (${{ inputs.do_production_release == 'true' }}) && (github.ref == "refs/heads/${{ inputs.mainline_branch }}") && (github.event_name != 'pull_request')
+    if: |
+      github.event.inputs.do_production_release == 'true' &&
+      github.ref == format('refs/heads/{0}', github.event.inputs.mainline_branch) &&
+      github.event_name != 'pull_request'
     needs:
       - test_mvn
       - build_mvn
     uses: ./.github/workflows/run_mvn.yaml
     with:
-      script: package jib:build -Djib.to.tags=production -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true
+      script: package jib:build -Djib.to.tags=production -Djib.target.namespace=${{ github.event.inputs.docker_namespace }} --no-transfer-progress -Dmaven.test.skip=true
