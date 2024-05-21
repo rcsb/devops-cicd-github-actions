@@ -87,6 +87,7 @@ readinessProbe:
 service:
   type: ClusterIP
   port: 80
+  targetPort: 8080
 
 # ingress declares the Ingress resource to be created and allow access to the service from the external internet.
 # Set ingress.enabled to true to create this Ingress resource. Double-check the host values for your application.
