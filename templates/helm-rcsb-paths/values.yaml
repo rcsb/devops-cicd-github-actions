@@ -31,13 +31,13 @@ image:
 externalSecret:
   enabled: false
   secretStoreRefName: "rcsb-vault"
-  targets:
-    - secretName: # Name of the secret resource to create in K8s
-      data: {}
-      #  - secretKey: key_name_to_create_in_Secret_k8s_resource
-      #    remoteRef:
-      #      key: vault_engine_name/secret_name
-      #      property: name_of_key_of_secret_in_vault
+  target:
+    secretName: # Name of the secret resource to create in K8s
+  data: {}
+    #  - secretKey: key_name_to_create_in_Secret_k8s_resource
+    #    remoteRef:
+    #      key: vault_engine_name/secret_name
+    #      property: name_of_key_of_secret_in_vault
 
 # imagePullSecrets is the Secret resource which contains the credentials to connect to Docker
 # to pull images from private Harbor projects. If the image for your Helm chart is not from a
