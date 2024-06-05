@@ -180,7 +180,8 @@ jobs:
       github.ref == format('refs/heads/{0}', inputs.mainline_branch) &&
       github.event_name != 'pull_request'
     needs:
-      - build_docker_staging
+      - test_npm
+      - build_docker
     uses: ./.github/workflows/retag_docker.yaml
     with:
       repo_url: "${{ inputs.repo_url }}"
