@@ -107,7 +107,7 @@ jobs:
   build_docker_production:
     name: "Push docker image with production tag"
     if: |
-      github.event.inputs.do_production_build &&
+      github.event.inputs.do_production_build == 'true' &&
       github.ref == format('refs/heads/{0}', github.event.inputs.mainline_branch) &&
       github.event_name != 'pull_request'
     needs:
