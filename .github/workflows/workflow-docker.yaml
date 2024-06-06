@@ -73,6 +73,22 @@ on:
         description: "Build, tag, and push a docker image with the production tag."
 
 jobs:
+  debug:
+    name: "Debug conditionals"
+    runs-on:
+      - "self-hosted"
+      - "dind"
+    steps:
+      - name: "Output inputs and refs"
+        run: |
+          echo "github.event.inputs.do_production_build: ${{ github.event.inputs.do_production_build }}"
+          echo "github.event.inputs.do_staging_build: ${{ github.event.inputs.do_staging_build }}"
+          echo "github.ref: ${{ github.ref }}"
+          echo "github.event.inputs.mainline_branch: ${{ github.event.inputs.mainline_branch }}"
+          echo "formatted mainline_branch: ${{ format('refs/heads/{0}', github.event.inputs.mainline_branch) }}"
+          echo "Is github.ref == format('refs/heads/{0}', github.event.inputs.mainline_branch): ${{ github.ref == format('refs/heads/{0}', github.event.inputs.mainline_branch) }}"
+          echo "github.event_name: ${{ github.event_name }}"
+          echo "Is github.event_name != 'pull_request': ${{ github.event_name != 'pull_request' }}"
   lint:
     name: "Lint Dockerfile"
     uses: ./.github/workflows/lint_docker.yaml
