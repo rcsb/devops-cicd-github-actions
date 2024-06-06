@@ -27,8 +27,8 @@ on:
         description: "The path location of the docker build context, relative to the project root."
       mainline_branch:
         type: string
-        default: github.event.repository.default_branch
-        description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch."
+        default: master
+        description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to master."
       do_staging_build:
         type: boolean
         default: false
