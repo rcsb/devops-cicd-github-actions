@@ -81,16 +81,11 @@ jobs:
     steps:
       - name: "Output inputs and refs"
         run: |
-          echo "github.event.inputs.do_production_build: ${{ github.event.inputs.do_production_build }}"
           echo "inputs.do_production_build: ${{ inputs.do_production_build }}"
-          echo "github.event.inputs.do_staging_build: ${{ github.event.inputs.do_staging_build }}"
           echo "inputs.do_staging_build: ${{ inputs.do_staging_build }}"
           echo "github.ref: ${{ github.ref }}"
-          echo "github.event.inputs.mainline_branch: ${{ github.event.inputs.mainline_branch }}"
           echo "inputs.mainline_branch: ${{ inputs.mainline_branch }}"
-          echo "formatted mainline_branch (event context): ${{ format('refs/heads/{0}', github.event.inputs.mainline_branch) }}"
-          echo "formatted mainline_branch (input ref): ${{ format('refs/heads/{0}', inputs.mainline_branch) }}"
-          echo "Is github.ref == format('refs/heads/{0}', github.event.inputs.mainline_branch): ${{ github.ref == format('refs/heads/{0}', github.event.inputs.mainline_branch) }}"
+          echo "formatted mainline_branch: ${{ format('refs/heads/{0}', inputs.mainline_branch) }}"
           echo "Is github.ref == format('refs/heads/{0}', inputs.mainline_branch): ${{ github.ref == format('refs/heads/{0}', inputs.mainline_branch) }}"
           echo "github.event_name: ${{ github.event_name }}"
           echo "Is github.event_name != 'pull_request': ${{ github.event_name != 'pull_request' }}"
@@ -112,7 +107,7 @@ jobs:
   build_docker_staging:
     name: "Push docker image with staging tag"
     if: |
-      github.event.inputs.do_staging_build == 'true' && 
+      inputs.do_staging_build && 
       github.ref == format('refs/heads/{0}', github.event.inputs.mainline_branch) &&
       github.event_name != 'pull_request'
     needs:
@@ -128,7 +123,7 @@ jobs:
   build_docker_production:
     name: "Push docker image with production tag"
     if: |
-      github.event.inputs.do_production_build == 'true' &&
+      inputs.do_production_build &&
       github.ref == format('refs/heads/{0}', github.event.inputs.mainline_branch) &&
       github.event_name != 'pull_request'
     needs:
