@@ -108,7 +108,7 @@ jobs:
     name: "Push docker image with staging tag"
     if: |
       inputs.do_staging_build && 
-      github.ref == format('refs/heads/{0}', github.event.inputs.mainline_branch) &&
+      github.ref == format('refs/heads/{0}', inputs.mainline_branch) &&
       github.event_name != 'pull_request'
     needs:
       - build-and-push
@@ -124,7 +124,7 @@ jobs:
     name: "Push docker image with production tag"
     if: |
       inputs.do_production_build &&
-      github.ref == format('refs/heads/{0}', github.event.inputs.mainline_branch) &&
+      github.ref == format('refs/heads/{0}', inputs.mainline_branch) &&
       github.event_name != 'pull_request'
     needs:
       - build-and-push
