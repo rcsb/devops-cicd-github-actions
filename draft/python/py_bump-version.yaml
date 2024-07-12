@@ -1,0 +1,66 @@
+# SPDX-FileCopyrightText: Copyright 2024, the RCSB PDB, University of California, Rutgers University, and contributors
+# SPDX-FileCopyrightText: Copyright 2020-2024, Contributors to CICD
+# SPDX-PackageHomePage: https://github.com/dmyersturnbull/cicd
+# SPDX-License-Identifier: Apache-2.0
+
+#
+
+name: Bump version
+run-name: ${{ github.workflow }} to ${{ github.ref_name }}
+# Manually called workflow that uses Commitizen to bump the version.
+# Adds a commit of type 'release'
+
+on:
+  # `gh workflow run bump-version.yaml --prerelease=${prerelease}
+  workflow_dispatch:
+    inputs:
+      prerelease:
+        type: choice
+        required: true
+        description: Pre-release type
+        options:
+          - alpha
+          - beta
+          - rc
+          - none
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.sha }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+
+  bump:
+    name: Bump version with commitizen
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+
+      - uses: actions/checkout@v4
+      - name: Import GPG key
+        id: gpg
+        uses: crazy-max/ghaction-import-gpg@v5
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+
+      - id: cz-release
+        name: Perform bump
+        uses: commitizen-tools/commitizen-action@v0.2
+        with:
+          github_token: ${{ secrets.github_token }}
+          git_name: ${{ steps.gpg.outputs.name }}
+          git_email: ${{ steps.gpg.outputs.email }}
+          gpg_sign: true
+          prerelease: ${{ github.event.inputs.prerelease }} # https://github.com/commitizen-tools/commitizen/pull/1162
+          changelog: false
+          debug: true
+
+      - name: Print version
+        run: echo "Bumped to version ${{ steps.cz-release.outputs.version }}"
