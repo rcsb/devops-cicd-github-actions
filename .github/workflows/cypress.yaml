@@ -30,6 +30,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Build
+        run: npm ci
       - name: Cypress test
         uses: cypress-io/github-action@v6
         with:
