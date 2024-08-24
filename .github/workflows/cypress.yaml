@@ -37,6 +37,7 @@ jobs:
           start: npm start
           wait-on: 'http://localhost:8080'
           browser: chrome
+          spec: cypress/tests/*/*.js
         env:
           NODE_ENV: test
           SIERRA_CONFIG: https://cdn.rcsb.org/config/c5aecb46a9fe2698498ed4d1ab1925e9a8fef7f5/profiles/parks/sierra/sierra-base.app.json,https://cdn.rcsb.org/config/c5aecb46a9fe2698498ed4d1ab1925e9a8fef7f5/profiles/parks/sierra/branch/sierra-${{ inputs.branch }}.app.json
