@@ -25,13 +25,14 @@ on:
         default: "16"
 
 jobs:
-  cypress-headless-test:
+  cypress-test:
     if: ${{ inputs.type }} == 'push'
     runs-on: ["self-hosted","node-${{ inputs.node_version }}"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Cypress test
+      - name: Cypress headless test
+        if: inputs.type == 'push'
         uses: cypress-io/github-action@v6
         with:
           start: npm start
@@ -39,13 +40,8 @@ jobs:
         env:
           NODE_ENV: test
           SIERRA_CONFIG: https://cdn.rcsb.org/config/c5aecb46a9fe2698498ed4d1ab1925e9a8fef7f5/profiles/parks/sierra/sierra-base.app.json,https://cdn.rcsb.org/config/c5aecb46a9fe2698498ed4d1ab1925e9a8fef7f5/profiles/parks/sierra/branch/sierra-${{ inputs.branch }}.app.json
-  cypress-headed-test:
-    if: ${{ inputs.type }} == 'nightly'
-    runs-on: ["self-hosted","node-${{ inputs.node_version }}"]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Cypress test
+      - name: Cypress nightly test
+        if: inputs.type == 'nightly'
         uses: cypress-io/github-action@v6
         with:
           start: npm start
@@ -56,3 +52,4 @@ jobs:
         env:
           NODE_ENV: test
           SIERRA_CONFIG: https://cdn.rcsb.org/config/c5aecb46a9fe2698498ed4d1ab1925e9a8fef7f5/profiles/parks/sierra/sierra-base.app.json,https://cdn.rcsb.org/config/c5aecb46a9fe2698498ed4d1ab1925e9a8fef7f5/profiles/parks/sierra/branch/sierra-${{ inputs.branch }}.app.json
+
