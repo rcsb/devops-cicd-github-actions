@@ -42,7 +42,11 @@ on:
         type: string
       production_k8s_deployment_name:
         required: false
-        description: "The names of the deployment in the K8s production namespace to restart. Needed if production_k8s_deployment_name is true."
+        description: "The names of the deployment in the K8s production namespace to restart. Needed if restart_production_deployment is true."
+        type: string
+      production_k8s_namespace_name:
+        default: "production"
+        description: "The namespace of the production deployment in K8s for restarts. Needed if restart_production_deployment is true."
         type: string
       node_version:
         default: "16"
@@ -68,6 +72,10 @@ on:
       do_production_build:
         default: "true"
         description: "Build, tag, and push a docker image with the production tag on commits to the mainline branch."
+      production_k8s_namespace_name:
+        default: "production"
+        description: "The namespace of the production deployment in K8s for restarts. Needed if restart_production_deployment is true."
+        type: string
       node_version:
         default: "16"
         description: "The nodejs version of the runner to use. Defaults to 16."
@@ -96,6 +104,7 @@ jobs:
           echo "inputs.do_production_build: ${{ inputs.do_production_build }}"
           echo "inputs.restart_production_deployment: ${{ inputs.restart_production_deployment }}"
           echo "inputs.production_k8s_deployment_name: ${{ inputs.production_k8s_deployment_name }}"
+          echo "inputs.production_k8s_namespace_name: ${{ inputs.production_k8s_namespace_name }}"
   build_npm:
     name: "Build via NPM"
     uses: ./.github/workflows/run_npm.yaml
@@ -190,6 +199,7 @@ jobs:
     if: |
       inputs.restart_production_deployment == 'true' &&
       inputs.production_k8s_deployment_name &&
+      inputs.production_k8s_namespace_name &&
       github.ref_name == inputs.mainline_branch &&
       github.event_name != 'pull_request'
     needs:
@@ -201,5 +211,5 @@ jobs:
         region: [ west, east ]
     with:
       deployment_name: "${{ inputs.production_k8s_deployment_name }}"
-      namespace: "production"
+      namespace: "${{ inputs.production_k8s_namespace_name }}"
       region: "${{ matrix.region }}"
