@@ -6,8 +6,8 @@ on:
     inputs:
       mainline_branch:
         type: string
-        default: ${{ format('refs/heads/{0}', github.event.repository.default_branch) }}
-        description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch."
+        default: "master"
+        description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the master branch."
       repo_url:
         type: string
         default: "harbor.devops.k8s.rcsb.org"
@@ -52,8 +52,8 @@ on:
     inputs:
       mainline_branch:
         type: string
-        default: ${{ format('refs/heads/{0}', github.event.repository.default_branch) }}
-        description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch."
+        default: "master"
+        description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the master branch."
       repo_url:
         type: string
         default: "harbor.devops.k8s.rcsb.org"
@@ -92,8 +92,7 @@ jobs:
           echo "inputs.do_production_build: ${{ inputs.do_production_build }}"
           echo "github.ref: ${{ github.ref }}"
           echo "inputs.mainline_branch: ${{ inputs.mainline_branch }}"
-          echo "formatted mainline_branch: ${{ format('refs/heads/{0}', inputs.mainline_branch) }}"
-          echo "Is github.ref == format('refs/heads/{0}', inputs.mainline_branch): ${{ github.ref == format('refs/heads/{0}', inputs.mainline_branch) }}"
+          echo "Is github.ref_name == inputs.mainline_branch: ${{ github.ref_name == inputs.mainline_branch }}"
           echo "github.event_name: ${{ github.event_name }}"
           echo "Is github.event_name != 'pull_request': ${{ github.event_name != 'pull_request' }}"
           echo "inputs.do_staging_build: ${{ inputs.do_staging_build }}"
@@ -142,7 +141,7 @@ jobs:
     name: "Push docker image with staging tag"
     if: |
       github.event.inputs.do_staging_build == 'true' &&
-      github.ref == format('refs/heads/{0}', github.event.inputs.mainline_branch) &&
+      github.ref_name == inputs.mainline_branch &&
       github.event_name != 'pull_request'
     needs:
       - test_npm
@@ -159,7 +158,7 @@ jobs:
     if: |
       github.event.inputs.restart_staging_deployment == 'true' &&
       github.event.inputs.staging_k8s_deployment_name &&
-      github.ref == format('refs/heads/{0}', github.event.inputs.mainline_branch) &&
+      github.ref_name == inputs.mainline_branch &&
       github.event_name != 'pull_request'
     needs:
       - build_docker_staging
@@ -177,7 +176,7 @@ jobs:
     name: "Push docker image with production tag"
     if: |
       github.event.inputs.do_production_build == 'true' &&
-      github.ref == format('refs/heads/{0}', inputs.mainline_branch) &&
+      github.ref_name == inputs.mainline_branch &&
       github.event_name != 'pull_request'
     needs:
       - test_npm
@@ -194,7 +193,7 @@ jobs:
     if: |
       github.event.inputs.restart_production_deployment == 'true' &&
       github.event.inputs.production_k8s_deployment_name &&
-      github.ref == format('refs/heads/{0}', inputs.mainline_branch) &&
+      github.ref_name == inputs.mainline_branch &&
       github.event_name != 'pull_request'
     needs:
       - build_docker_production
