@@ -7,36 +7,47 @@ on:
       mainline_branch:
         default: "master"
         description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the master branch."
+        type: string
       repo_url:
         default: "harbor.devops.k8s.rcsb.org"
         description: "The URL of the remote Docker image repository."
+        type: string
       repo_project:
         required: true
         description: "The name of the project or organization in the remote Docker image repository."
+        type: string
       docker_image_name:
         required: true
         description: "The name of the Docker image to create."
+        type: string
       do_staging_build:
         default: "false"
         description: "Build, tag, and push a docker image with the staging tag on commits to the mainline branch."
+        type: string
       restart_staging_deployment:
         default: "false"
         description: "Restart the staging K8s deployments for this application on commits to the mainline branch."
+        type: string
       staging_k8s_deployment_name:
-        required: "false"
+        required: false
         description: "The name of the deployment in the K8s staging namespace to restart. Needed if restart_staging_deployment is true."
+        type: string
       do_production_build:
         default: "true"
         description: "Build, tag, and push a docker image with the production tag on commits to the mainline branch."
+        type: string
       restart_production_deployment:
         default: "false"
         description: "Restart the production K8s deployment for this application on commits to the mainline branch."
+        type: string
       production_k8s_deployment_name:
         required: false
         description: "The names of the deployment in the K8s production namespace to restart. Needed if production_k8s_deployment_name is true."
+        type: string
       node_version:
         default: "16"
         description: "The nodejs version of the runner to use. Defaults to 16."
+        type: string
   workflow_dispatch:
     inputs:
       mainline_branch:
