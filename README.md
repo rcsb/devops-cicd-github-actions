@@ -8,8 +8,6 @@ Within the GitHub repository for your application, you will need to create and i
 
 To package your application as a Helm chart, add the `templates/helm` directory under the root of your project as `k8s/helm`. Modify the values in the `Chart.yaml` and `values.yaml` files to fit the project needs.
 
-To deploy your application using Skaffold, add the `templates/skaffold.yaml` file to the root of your project as `skaffold.yaml`. Modify the `releases.name` values to match the application.
-
 To learn more about GitHub Actions workflows, see [this link](https://docs.github.com/en/actions/using-workflows/about-workflows).
 
 For more in-depth documentation on the workflow `.yaml` files, see [this link](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#about-yaml-syntax-for-workflows).
@@ -61,10 +59,10 @@ jobs:
     name: "Run automated workflow"
     uses: rcsb/devops-cicd-github-actions/.github/workflows/workflow-java.yaml@master
     with:
-      mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch.
+      mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the master branch.
       docker_namespace: # The Docker image namespace built by jib. Defaults to 'rcsb'.
       do_staging_build: # Build and push a staging tagged container image for this application on commits to the mainline_branch. Defaults to false.
-      do_production_build: # Build and push a production tagged container image for this application on commits to the mainline_branch. Defaults to false.
+      do_production_build: # Build and push a production tagged container image for this application on commits to the mainline_branch. Defaults to true.
 ```
 
 Note that because some of the current RCSB Java applications are tightly coupled, production image release must be separately scheduled and deployed in tandem with other Java applications. For these applications, we should schedule a build of the Java application before the weekly release, and have the weekly update workflow handle restarting the deployments and utilize the new images.
@@ -95,7 +93,7 @@ jobs:
     name: "Run automated workflow for production release"
     uses: rcsb/devops-cicd-github-actions/.github/workflows/workflow-java.yaml@master
     with:
-      mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch.
+      mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the master branch.
       docker_namespace: # The Docker image namespace built by jib. Defaults to 'rcsb'.
       do_staging_build: false
       do_production_build: true
@@ -187,6 +185,6 @@ jobs:
       docker_image_name: # REQUIRED. The name of the Docker image to create.
       docker_build_context: # The path location of the docker build context, relative to the project root. Defaults to the project root.
       mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to master.    
-      do_staging_build: # Build, tag, and push a docker image with the staging tag.
-      do_production_build: # Build, tag, and push a docker image with the production tag.
+      do_staging_build: # Build, tag, and push a docker image with the staging tag. Defaults to false.
+      do_production_build: # Build, tag, and push a docker image with the production tag. Defaults to true.
 ```
