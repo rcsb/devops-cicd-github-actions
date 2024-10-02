@@ -5,77 +5,59 @@ on:
   workflow_call:
     inputs:
       mainline_branch:
-        type: string
         default: "master"
         description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the master branch."
       repo_url:
-        type: string
         default: "harbor.devops.k8s.rcsb.org"
         description: "The URL of the remote Docker image repository."
       repo_project:
-        type: string
         required: true
         description: "The name of the project or organization in the remote Docker image repository."
       docker_image_name:
-        type: string
         required: true
         description: "The name of the Docker image to create."
       do_staging_build:
-        type: boolean
-        default: false
+        default: "false"
         description: "Build, tag, and push a docker image with the staging tag on commits to the mainline branch."
       restart_staging_deployment:
-        type: boolean
-        default: false
+        default: "false"
         description: "Restart the staging K8s deployments for this application on commits to the mainline branch."
       staging_k8s_deployment_name:
-        type: string
-        required: false
+        required: "false"
         description: "The name of the deployment in the K8s staging namespace to restart. Needed if restart_staging_deployment is true."
       do_production_build:
-        type: boolean
-        default: true
+        default: "true"
         description: "Build, tag, and push a docker image with the production tag on commits to the mainline branch."
       restart_production_deployment:
-        type: boolean
-        default: false
+        default: "false"
         description: "Restart the production K8s deployment for this application on commits to the mainline branch."
       production_k8s_deployment_name:
-        type: string
         required: false
         description: "The names of the deployment in the K8s production namespace to restart. Needed if production_k8s_deployment_name is true."
       node_version:
-        type: string
         default: "16"
         description: "The nodejs version of the runner to use. Defaults to 16."
   workflow_dispatch:
     inputs:
       mainline_branch:
-        type: string
         default: "master"
         description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the master branch."
       repo_url:
-        type: string
         default: "harbor.devops.k8s.rcsb.org"
         description: "The URL of the remote Docker image repository."
       repo_project:
-        type: string
         required: true
         description: "The name of the project or organization in the remote Docker image repository."
       docker_image_name:
-        type: string
         required: true
         description: "The name of the Docker image to create."
       do_staging_build:
-        type: boolean
-        default: false
+        default: "false"
         description: "Build, tag, and push a docker image with the staging tag on commits to the mainline branch."
       do_production_build:
-        type: boolean
-        default: true
+        default: "true"
         description: "Build, tag, and push a docker image with the production tag on commits to the mainline branch."
       node_version:
-        type: string
         default: "16"
         description: "The nodejs version of the runner to use. Defaults to 16."
 
@@ -89,15 +71,19 @@ jobs:
     steps:
       - name: "Output inputs and refs"
         run: |
-          echo "inputs.do_production_build: ${{ inputs.do_production_build }}"
-          echo "github.ref: ${{ github.ref }}"
+          echo "=== Check branch conditionals"
+          echo "github.ref_name: ${{ github.ref_name }}"
           echo "inputs.mainline_branch: ${{ inputs.mainline_branch }}"
           echo "Is github.ref_name == inputs.mainline_branch: ${{ github.ref_name == inputs.mainline_branch }}"
+          echo "=== Check event conditionals"
           echo "github.event_name: ${{ github.event_name }}"
           echo "Is github.event_name != 'pull_request': ${{ github.event_name != 'pull_request' }}"
+          echo "=== Check environment conditionals"
           echo "inputs.do_staging_build: ${{ inputs.do_staging_build }}"
           echo "inputs.restart_staging_deployment: ${{ inputs.restart_staging_deployment }}"
           echo "inputs.staging_k8s_deployment_name: ${{ inputs.staging_k8s_deployment_name }}"
+          echo "inputs.do_production_build: ${{ inputs.do_production_build }}"
+          echo "inputs.restart_production_deployment: ${{ inputs.restart_production_deployment }}"
           echo "inputs.production_k8s_deployment_name: ${{ inputs.production_k8s_deployment_name }}"
   build_npm:
     name: "Build via NPM"
@@ -140,7 +126,7 @@ jobs:
   build_docker_staging:
     name: "Push docker image with staging tag"
     if: |
-      github.event.inputs.do_staging_build == 'true' &&
+      inputs.do_staging_build == 'true' &&
       github.ref_name == inputs.mainline_branch &&
       github.event_name != 'pull_request'
     needs:
@@ -156,8 +142,8 @@ jobs:
   restart_staging_k8s_deployment:
     name: "Restart deployment in K8s staging namespace"
     if: |
-      github.event.inputs.restart_staging_deployment == 'true' &&
-      github.event.inputs.staging_k8s_deployment_name &&
+      inputs.restart_staging_deployment == 'true' &&
+      inputs.staging_k8s_deployment_name &&
       github.ref_name == inputs.mainline_branch &&
       github.event_name != 'pull_request'
     needs:
@@ -175,7 +161,7 @@ jobs:
   build_docker_production:
     name: "Push docker image with production tag"
     if: |
-      github.event.inputs.do_production_build == 'true' &&
+      inputs.do_production_build == 'true' &&
       github.ref_name == inputs.mainline_branch &&
       github.event_name != 'pull_request'
     needs:
@@ -191,8 +177,8 @@ jobs:
   restart_production_k8s_deployment:
     name: "Restart deployment in K8s production namespace"
     if: |
-      github.event.inputs.restart_production_deployment == 'true' &&
-      github.event.inputs.production_k8s_deployment_name &&
+      inputs.restart_production_deployment == 'true' &&
+      inputs.production_k8s_deployment_name &&
       github.ref_name == inputs.mainline_branch &&
       github.event_name != 'pull_request'
     needs:
