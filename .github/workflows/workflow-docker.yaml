@@ -30,12 +30,12 @@ on:
         default: master
         description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to master."
       do_staging_build:
-        type: boolean
-        default: false
+        type: string
+        default: "false"
         description: "Build, tag, and push a docker image with the staging tag."
       do_production_build:
-        type: boolean
-        default: false
+        type: string
+        default: "true"
         description: "Build, tag, and push a docker image with the production tag."
   workflow_dispatch:
     inputs:
@@ -64,12 +64,12 @@ on:
         default: github.event.repository.default_branch
         description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch."
       do_staging_build:
-        type: boolean
-        default: false
+        type: string
+        default: "false"
         description: "Build, tag, and push a docker image with the staging tag."
       do_production_build:
-        type: boolean
-        default: false
+        type: string
+        default: "true"
         description: "Build, tag, and push a docker image with the production tag."
 
 jobs:
@@ -81,14 +81,16 @@ jobs:
     steps:
       - name: "Output inputs and refs"
         run: |
-          echo "inputs.do_production_build: ${{ inputs.do_production_build }}"
-          echo "inputs.do_staging_build: ${{ inputs.do_staging_build }}"
-          echo "github.ref: ${{ github.ref }}"
+          echo "=== Check branch conditionals"
+          echo "github.ref_name: ${{ github.ref_name }}"
           echo "inputs.mainline_branch: ${{ inputs.mainline_branch }}"
-          echo "formatted mainline_branch: ${{ format('refs/heads/{0}', inputs.mainline_branch) }}"
-          echo "Is github.ref == format('refs/heads/{0}', inputs.mainline_branch): ${{ github.ref == format('refs/heads/{0}', inputs.mainline_branch) }}"
+          echo "Is github.ref_name == inputs.mainline_branch: ${{ github.ref_name == inputs.mainline_branch }}"
+          echo "=== Check event conditionals"
           echo "github.event_name: ${{ github.event_name }}"
           echo "Is github.event_name != 'pull_request': ${{ github.event_name != 'pull_request' }}"
+          echo "=== Check environment conditionals"
+          echo "inputs.do_production_build: ${{ inputs.do_production_build }}"
+          echo "inputs.do_staging_build: ${{ inputs.do_staging_build }}"
   lint:
     name: "Lint Dockerfile"
     uses: ./.github/workflows/lint_docker.yaml
@@ -107,8 +109,8 @@ jobs:
   build_docker_staging:
     name: "Push docker image with staging tag"
     if: |
-      inputs.do_staging_build && 
-      github.ref == format('refs/heads/{0}', inputs.mainline_branch) &&
+      inputs.do_staging_build == 'true' && 
+      github.ref_name == inputs.mainline_branch &&
       github.event_name != 'pull_request'
     needs:
       - build-and-push
@@ -123,8 +125,8 @@ jobs:
   build_docker_production:
     name: "Push docker image with production tag"
     if: |
-      inputs.do_production_build &&
-      github.ref == format('refs/heads/{0}', inputs.mainline_branch) &&
+      inputs.do_production_build == 'true' &&
+      github.ref_name == inputs.mainline_branch &&
       github.event_name != 'pull_request'
     needs:
       - build-and-push

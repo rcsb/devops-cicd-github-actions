@@ -8,8 +8,6 @@ Within the GitHub repository for your application, you will need to create and i
 
 To package your application as a Helm chart, add the `templates/helm` directory under the root of your project as `k8s/helm`. Modify the values in the `Chart.yaml` and `values.yaml` files to fit the project needs.
 
-To deploy your application using Skaffold, add the `templates/skaffold.yaml` file to the root of your project as `skaffold.yaml`. Modify the `releases.name` values to match the application.
-
 To learn more about GitHub Actions workflows, see [this link](https://docs.github.com/en/actions/using-workflows/about-workflows).
 
 For more in-depth documentation on the workflow `.yaml` files, see [this link](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#about-yaml-syntax-for-workflows).
@@ -61,10 +59,10 @@ jobs:
     name: "Run automated workflow"
     uses: rcsb/devops-cicd-github-actions/.github/workflows/workflow-java.yaml@master
     with:
-      mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch.
+      mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the master branch.
       docker_namespace: # The Docker image namespace built by jib. Defaults to 'rcsb'.
       do_staging_build: # Build and push a staging tagged container image for this application on commits to the mainline_branch. Defaults to false.
-      do_production_build: # Build and push a production tagged container image for this application on commits to the mainline_branch. Defaults to false.
+      do_production_build: # Build and push a production tagged container image for this application on commits to the mainline_branch. Defaults to true.
 ```
 
 Note that because some of the current RCSB Java applications are tightly coupled, production image release must be separately scheduled and deployed in tandem with other Java applications. For these applications, we should schedule a build of the Java application before the weekly release, and have the weekly update workflow handle restarting the deployments and utilize the new images.
@@ -95,7 +93,7 @@ jobs:
     name: "Run automated workflow for production release"
     uses: rcsb/devops-cicd-github-actions/.github/workflows/workflow-java.yaml@master
     with:
-      mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch.
+      mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the master branch.
       docker_namespace: # The Docker image namespace built by jib. Defaults to 'rcsb'.
       do_staging_build: false
       do_production_build: true
@@ -148,7 +146,7 @@ jobs:
     name: "Run automated workflow"
     uses: rcsb/devops-cicd-github-actions/.github/workflows/workflow-node.yaml@master
     with:
-      mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the repo's default branch.
+      mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the master branch.
       repo_url: # The URL of the remote Docker image repository. Defaults to harbor.devops.k8s.rcsb.org.
       repo_project: # REQUIRED. The name of the project or organization in the remote Docker image repository.
       docker_image_name: # REQUIRED. The name of the Docker image to create.
@@ -158,6 +156,7 @@ jobs:
       do_production_build: # Build, tag, and push a docker image with the production tag on commits to the mainline branch. Defaults to true.
       restart_production_deployment: # Restart the production K8s deployment for this application on commits to the mainline branch. Defaults to false.
       production_k8s_deployment_name: # The names of the deployment in the K8s production namespace to restart. Needs to be defined if restart_production_deployment is set to true.
+      production_k8s_namespace_name: #The namespace of the production deployment in K8s for restarts. Needed if restart_production_deployment is true.
       node_version: #The nodejs version of the runner to use. Defaults to 16.
 ```
 
@@ -187,6 +186,6 @@ jobs:
       docker_image_name: # REQUIRED. The name of the Docker image to create.
       docker_build_context: # The path location of the docker build context, relative to the project root. Defaults to the project root.
       mainline_branch: # The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to master.    
-      do_staging_build: # Build, tag, and push a docker image with the staging tag.
-      do_production_build: # Build, tag, and push a docker image with the production tag.
+      do_staging_build: # Build, tag, and push a docker image with the staging tag. Defaults to false.
+      do_production_build: # Build, tag, and push a docker image with the production tag. Defaults to true.
 ```
