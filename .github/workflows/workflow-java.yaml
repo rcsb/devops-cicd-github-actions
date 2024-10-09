@@ -44,7 +44,7 @@ jobs:
     name: "Debug conditionals"
     runs-on:
       - "self-hosted"
-      - "node-${{ inputs.node_version }}"
+      - "java"
     steps:
       - name: "Output inputs and refs"
         run: |
