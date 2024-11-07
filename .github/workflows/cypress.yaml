@@ -26,7 +26,7 @@ on:
 
 jobs:
   cypress-test:
-    runs-on: ["self-hosted","node-${{ inputs.node_version }}","east"]
+    runs-on: ["self-hosted","node-${{ inputs.node_version }}","west"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
