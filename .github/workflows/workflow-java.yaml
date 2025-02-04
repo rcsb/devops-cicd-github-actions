@@ -39,6 +39,10 @@ on:
         default: "true"
         description: "Build and push a production tagged container image for this application on commits to the mainline_branch."
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   debug:
     name: "Debug conditionals"
