@@ -75,39 +75,13 @@ jobs:
     uses: ./.github/workflows/run_mvn.yaml
     with:
       script: package
-  extract:
-    name: extract-version
-    needs:
-      - test_mvn
-      - build_mvn
-    runs-on:
-      - self-hosted
-      - java
-    outputs:
-      major: ${{ steps.major.outputs.major }}
-      minor: ${{ steps.minor.outputs.minor }}
-      patch: ${{ steps.patch.outputs.patch }}
-    steps:
-      - uses: actions/checkout@v4
-      - id: major
-        run: |
-          echo ::set-output name=major::$(mvn build-helper:parse-version help:evaluate -Dexpression=parsedVersion.majorVersion -q -DforceStdout --no-transfer-progress)
-      - id: minor
-        run: |
-          echo ::set-output name=minor::$(mvn build-helper:parse-version help:evaluate -Dexpression=parsedVersion.minorVersion -q -DforceStdout --no-transfer-progress)
-      - id: patch
-        run: |
-          echo ::set-output name=patch::$(mvn build-helper:parse-version help:evaluate -Dexpression=parsedVersion.incrementalVersion -q -DforceStdout --no-transfer-progress)
-  echo-version:
-    runs-on: ubuntu-latest
-    needs: extract
-    steps:
-      - run: echo ${{needs.extract.outputs.major}}.${{needs.extract.outputs.minor}}.${{needs.extract.outputs.patch}}
   # Push jib
   build_jib:
     name: "Build and push docker image with Jib"
     if: github.event_name != 'pull_request'
-    needs: extract
+    needs:
+      - test_mvn
+      - build_mvn
     uses: ./.github/workflows/run_mvn.yaml
     with:
       script: package jib:build -Djib.to.tags=${{ github.ref_name }} -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
