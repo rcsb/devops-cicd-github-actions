@@ -201,7 +201,8 @@ jobs:
       inputs.production_k8s_deployment_name &&
       inputs.production_k8s_namespace_name &&
       github.ref_name == inputs.mainline_branch &&
-      github.event_name != 'pull_request'
+      github.event_name != 'pull_request' &&
+      always()
     needs:
       - build_docker_production
     uses: ./.github/workflows/restart_k8s_deployment.yaml
