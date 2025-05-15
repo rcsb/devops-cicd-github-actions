@@ -16,16 +16,29 @@ on:
         description: "The location of the Dockerfile relative to the root of the repository."
 
 jobs:
+
   lint:
-    name: "Lint Dockerfile"
+    name: Lint Dockerfile
     runs-on:
-      - "self-hosted"
-      - "hadolint"
+      - self-hosted
+      - hadolint
+    env:
+      DOCKERFILE: ${{ inputs.dockerfile_location }}
+      TEMP_DOCKERFILE: .~hadolint.temp~
     steps:
       - uses: actions/checkout@v4
-        name: "Checkout code"
-      - name: "Run lint"
+      - run: |
+      # hadolint's last release was in 2022.
+      # However, it's decidedly not abandoned: https://github.com/hadolint/hadolint/issues/1041
+      # It's also so widely used that it will find a new maintainer if needed.
+      # Unfortunately, some issues aren't being fixed.
+      - name: Run hadolint
         run: |
-          echo "Running hadolint on Dockerfile located at: ${{ inputs.dockerfile_location }}"
-          echo "An empty output indicates a successful lint."
-          hadolint ${{ inputs.dockerfile_location }}
+          sed 's/\--start-interval=1s //g' "$DOCKERFILE" > "$TEMP_DOCKERFILE"
+          printf "Running hadolint on '%s' (copied to temp file '%s').\nNo output on success.\n" \
+            "$DOCKERFILE" \
+            "$TEMP_DOCKERFILE"
+          hadolint "$TEMP_DOCKERFILE" --no-color
+      - if: ${{ always() }}
+        run: |
+          rm -r -f "$TEMP_DOCKERFILE"
