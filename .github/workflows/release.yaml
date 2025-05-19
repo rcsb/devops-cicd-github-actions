@@ -50,8 +50,8 @@ jobs:
     with:
       # build the tags comma separated string. No idea how people did this before ChatGPT
       # e.g.
-      #   if VERSION_TAG=1.2.3 and extra-tags='' then this will give '1.2.3'
-      #   if VERSION_TAG=1.2.3 and extra-tags='myextratag' then this will give '1.2.3,myextratag'
+      #   if VERSION_TAG='1.2.3' and extra-tags='' then this will give '1.2.3'
+      #   if VERSION_TAG='1.2.3' and extra-tags='myextratag' then this will give '1.2.3,myextratag'
       tag: ${{ env.VERSION_TAG }}${{ inputs.extra-tags && format(',{0}', inputs.extra-tags) || '' }}
   call-deploy-to-build-locker:
     needs:
