@@ -15,6 +15,10 @@ on:
         description: 'Patch version'
         type: string
         required: true
+      extra-tags:
+        description: 'Extra tags to be used when pushing the image to image repo. Comma separated list. A tag with major.minor.patch will always be created.'
+        type: string
+        required: false
       skip-tests:
         description: 'Skip tests'
         type: boolean
@@ -28,6 +32,8 @@ on:
         description: 'buildlocker distribution type [war|jar*]'
         type: string
         required: false
+env:
+  VERSION_TAG: "${{ inputs.major }}.${{ inputs.minor }}.${{ inputs.patch }}"
 
 jobs:
   run-tests:
@@ -42,7 +48,11 @@ jobs:
   call-build-and-push-docker:
     uses: rcsb/devops-cicd-github-actions/.github/workflows/build-and-push-docker.yaml@master
     with:
-      tag: "${{ inputs.major }}.${{ inputs.minor }}.${{ inputs.patch }}"
+      # build the tags comma separated string. No idea how people did this before ChatGPT
+      # e.g.
+      #   if VERSION_TAG=1.2.3 and extra-tags='' then this will give '1.2.3'
+      #   if VERSION_TAG=1.2.3 and extra-tags='myextratag' then this will give '1.2.3,myextratag'
+      tag: ${{ env.VERSION_TAG }}${{ inputs.extra-tags && format(', {0}', inputs.extra-tags) || '' }}
   call-deploy-to-build-locker:
     needs:
       - call-build-and-push-docker

@@ -52,6 +52,7 @@ jobs:
       major: "${{needs.extract.outputs.major}}"
       minor: "${{needs.extract.outputs.minor}}"
       patch: "${{needs.extract.outputs.patch}}"
+      extra-tags: "production"
       skip-tests : true
       distribution: "${{ inputs.distribution }}"
       type: "${{ inputs.type }}"
