@@ -32,7 +32,7 @@ jobs:
       - run: echo ${{needs.extract.outputs.major}}.${{needs.extract.outputs.minor}}.${{needs.extract.outputs.patch}}
   update-version:
     needs: extract
-    uses: ./.github/workflows/java-java-update-version.yaml
+    uses: ./.github/workflows/java-update-version.yaml
     with:
       major: ${{ needs.extract.outputs.major }}
       minor: ${{ needs.extract.outputs.minor }}
