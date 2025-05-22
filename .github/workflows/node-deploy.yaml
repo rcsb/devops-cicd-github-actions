@@ -18,7 +18,7 @@ on:
 
 jobs:
   build-and-push-node-to-buildlocker:
-    uses: rcsb/devops-cicd-github-actions/.github/workflows/deploy-to-buildlocker.yaml@master
+    uses: ./.github/workflows/deploy-to-buildlocker.yaml
     with:
       distribution: ${{ inputs.distribution }}
       branch: ${{ inputs.branch }}
