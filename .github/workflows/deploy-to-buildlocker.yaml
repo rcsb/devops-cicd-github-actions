@@ -1,3 +1,4 @@
+# TODO remove once we are out of OpenStack and build-locker artifacts are not needed anymore
 name: Deploy to Buildlocker
 
 on:
