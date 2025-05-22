@@ -1,0 +1,30 @@
+# This workflow will upload the release artifact to the artifact repository (Harbor and build-locker)
+# Note: a call to this workflow must be triggered on tags (on.push.tags: *)
+name: Release maven project on git tag event
+on:
+  workflow_call:
+    # TODO remove these 2 params once we are out of OpenStack and build-locker build is not needed anymore
+    distribution:
+      description: 'buildlocker distribution name'
+      type: string
+      required: true
+    type:
+      description: 'buildlocker distribution type [war|jar*]. Use any other value to skip pushing to build-locker'
+      type: string
+      required: false
+
+jobs:
+  build_jib_production:
+    # Note if workflow is triggered on tag then $GITHUB_REF_NAME will contain the tag name
+    name: "Build docker image via jib with tags: production,$GITHUB_REF_NAME"
+    uses: ./.github/workflows/run_mvn.yaml
+    with:
+      script: package jib:build -Djib.to.tags=production,$GITHUB_REF_NAME -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
+  # TODO remove once we are out of OpenStack and build-locker artifacts are not needed anymore
+  call-deploy-to-build-locker:
+    needs:
+      - build_jib_production
+    uses: ./.github/workflows/deploy-to-buildlocker.yaml
+    with:
+      distribution: "${{ inputs.distribution }}"
+      type: "${{ inputs.type }}"

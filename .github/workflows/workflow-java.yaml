@@ -1,5 +1,6 @@
 name: Java Workflow
 # Standard workflow for any Java based projects built with Jib. Because the current RCSB Java applications are tightly coupled, production image release must be separately scheduled and deployed in tandem with other Java applications.
+# In specific java maven repo project you must use these 2: workflow-java (push on any branch) and maven-release-on-tag (push on any tag)
 
 on:
   workflow_call:
@@ -16,10 +17,6 @@ on:
         type: string
         default: "false"
         description: "Build and push a staging tagged container image for this application on commits to the mainline_branch."
-      do_production_build:
-        type: string
-        default: "true"
-        description: "Build and push a production tagged container image for this application on commits to the mainline_branch."
   workflow_dispatch:
     inputs:
       mainline_branch:
@@ -34,15 +31,6 @@ on:
         type: string
         default: "false"
         description: "Build and push a staging tagged container image for this application on commits to the mainline_branch."
-      do_production_build:
-        type: string
-        default: "true"
-        description: "Build and push a production tagged container image for this application on commits to the mainline_branch."
-
-concurrency:
-  group: ${{ github.ref }}
-  # Put to true after the older buildlocker pipeline is decommissioned
-  cancel-in-progress: false
 
 jobs:
   debug:
@@ -62,15 +50,20 @@ jobs:
           echo "Is github.event_name != 'pull_request': ${{ github.event_name != 'pull_request' }}"
           echo "=== Check environment conditionals"
           echo "inputs.do_staging_build: ${{ inputs.do_staging_build }}"
-          echo "inputs.do_production_build: ${{ inputs.do_production_build }}"
   # Test projects
   test_mvn:
+    # If we are in a commit from the [actions] pipeline (see update-version.yaml), do nothing
+    if: |
+      !contains(github.event.head_commit.message, '[actions]')
     name: "Run tests via mvn"
     uses: ./.github/workflows/run_mvn.yaml
     with:
       script: "test --no-transfer-progress"
       publish_surefire_test_report: true
   build_mvn:
+    # If we are in a commit from the [actions] pipeline (see update-version.yaml), do nothing
+    if: |
+      !contains(github.event.head_commit.message, '[actions]')
     name: "Build project with mvn"
     uses: ./.github/workflows/run_mvn.yaml
     with:
@@ -85,7 +78,14 @@ jobs:
     uses: ./.github/workflows/run_mvn.yaml
     with:
       script: package jib:build -Djib.to.tags=${{ github.ref_name }} -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
+  roll_version:
+    name: "Roll maven version"
+    needs:
+      - test_mvn
+      - build_mvn
+    uses: ./.github/workflows/java-roll-version.yaml
   # Staging jobs
+  # TODO review if we actually need staging. I don't see what the use is - JD 2025-05-21
   build_jib_staging:
     name: "Build docker image via jib with staging tag"
     if: |
@@ -99,16 +99,4 @@ jobs:
     with:
       script: package jib:build -Djib.to.tags=staging -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
   # Production jobs
-  # TODO: Increment version of project through workflow. Add this step once we are ready to retire older workflow files.
-  build_jib_production:
-    name: "Build docker image via jib with production tag"
-    if: |
-      inputs.do_production_build == 'true' &&
-      github.ref_name == inputs.mainline_branch &&
-      github.event_name != 'pull_request'
-    needs:
-      - test_mvn
-      - build_mvn
-    uses: ./.github/workflows/run_mvn.yaml
-    with:
-      script: package jib:build -Djib.to.tags=production -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
+  # The production build is taken care by a separate workflow that triggers on tag: release-on-tag.yaml

@@ -1,0 +1,39 @@
+# A workflow to find the current version from pom and then commit the release version (with tag) and the next dev cycle version
+# Note this uses update-version.yaml
+name: Roll maven version
+on:
+  workflow_call:
+
+jobs:
+  extract:
+    name: extract-version
+    runs-on:
+      - self-hosted
+      - java
+    outputs:
+      major: ${{ steps.major.outputs.major }}
+      minor: ${{ steps.minor.outputs.minor }}
+      patch: ${{ steps.patch.outputs.patch }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: major
+        run: |
+          echo ::set-output name=major::$(mvn build-helper:parse-version help:evaluate -Dexpression=parsedVersion.majorVersion -q -DforceStdout --no-transfer-progress)
+      - id: minor
+        run: |
+          echo ::set-output name=minor::$(mvn build-helper:parse-version help:evaluate -Dexpression=parsedVersion.minorVersion -q -DforceStdout --no-transfer-progress)
+      - id: patch
+        run: |
+          echo ::set-output name=patch::$(mvn build-helper:parse-version help:evaluate -Dexpression=parsedVersion.incrementalVersion -q -DforceStdout --no-transfer-progress)
+  echo-version:
+    runs-on: ubuntu-latest
+    needs: extract
+    steps:
+      - run: echo ${{needs.extract.outputs.major}}.${{needs.extract.outputs.minor}}.${{needs.extract.outputs.patch}}
+  update-version:
+    needs: extract
+    uses: ./.github/workflows/update-version.yaml
+    with:
+      major: ${{ needs.extract.outputs.major }}
+      minor: ${{ needs.extract.outputs.minor }}
+      patch: ${{ needs.extract.outputs.patch }}
