@@ -90,7 +90,6 @@ jobs:
 
   # TODO remove once we are out of OpenStack and build-locker artifacts are not needed anymore
   call-deploy-to-build-locker:
-    # TODO we must use the latest commit here. Need to apply same trick as above
     needs: update-version-commit
     uses: ./.github/workflows/deploy-to-buildlocker.yaml
     with:
