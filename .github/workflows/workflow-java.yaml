@@ -71,7 +71,10 @@ jobs:
   # Push jib
   build_jib:
     name: "Build and push docker image with Jib"
-    if: github.event_name != 'pull_request'
+    # We skip if not in mainline branch: that's because there will always be a production image built for the mainline branch case below. This is useful for other branches
+    if: |
+      github.event_name != 'pull_request' &&
+      github.ref_name != inputs.mainline_branch
     needs:
       - test_mvn
       - build_mvn
