@@ -24,6 +24,11 @@ jobs:
       - id: echo-version
         run: |
           echo ${{steps.get-version.outputs.major}}.${{steps.get-version.outputs.minor}}.${{steps.get-version.outputs.patch}}
+  echo-version:
+    runs-on: ubuntu-latest
+    needs: extract
+    steps:
+      - run: echo ${{needs.extract.outputs.major}}.${{needs.extract.outputs.minor}}.${{needs.extract.outputs.patch}}
   update-version:
     needs: extract
     uses: ./.github/workflows/java-update-version.yaml
