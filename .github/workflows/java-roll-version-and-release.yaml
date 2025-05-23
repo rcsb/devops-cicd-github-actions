@@ -72,12 +72,25 @@ jobs:
     needs:
       - update-version-commit
       - extract
-    uses: ./.github/workflows/run_mvn.yaml
-    with:
-      script: package jib:build -Djib.to.tags=production,${{ needs.extract.outputs.major }}.${{ needs.extract.outputs.minor }}.${{ needs.extract.outputs.patch }} -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
+    runs-on:
+      - self-hosted
+      - java
+    # NOTE: by default checkout will get the revision at workflow trigger time. Here we want the latest (including commits from previous jobs), that's why we need the fetch-depth and pull
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Pull latest changes
+        run: |
+          git pull origin ${{ github.ref_name }}
+      - name: Jib build and push production image
+        run: |
+          echo "Jib build and push with tags production,${{ needs.extract.outputs.major }}.${{ needs.extract.outputs.minor }}.${{ needs.extract.outputs.patch }}"
+          mvn package jib:build -Djib.to.tags=production,${{ needs.extract.outputs.major }}.${{ needs.extract.outputs.minor }}.${{ needs.extract.outputs.patch }} -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
 
   # TODO remove once we are out of OpenStack and build-locker artifacts are not needed anymore
   call-deploy-to-build-locker:
+    # TODO we must use the latest commit here. Need to apply same trick as above
     needs: update-version-commit
     uses: ./.github/workflows/deploy-to-buildlocker.yaml
     with:
@@ -96,7 +109,13 @@ jobs:
       - self-hosted
       - java
     steps:
+      # NOTE: by default checkout will get the revision at workflow trigger time. Here we want the latest (including commits from previous jobs), that's why we need the fetch-depth and pull
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Pull latest changes
+        run: |
+          git pull origin ${{ github.ref_name }}
       - name: Setup git author information
         run: |
           git config user.name RCSBSystem
