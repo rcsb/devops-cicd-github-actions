@@ -21,11 +21,9 @@ jobs:
           echo "major=$(mvn --quiet build-helper:parse-version help:evaluate -Dexpression=parsedVersion.majorVersion -DforceStdout --no-transfer-progress)" >> "$GITHUB_OUTPUT" 
           echo "minor=$(mvn --quiet build-helper:parse-version help:evaluate -Dexpression=parsedVersion.minorVersion -DforceStdout --no-transfer-progress)" >> "$GITHUB_OUTPUT"
           echo "patch=$(mvn --quiet build-helper:parse-version help:evaluate -Dexpression=parsedVersion.incrementalVersion -DforceStdout --no-transfer-progress)" >> "$GITHUB_OUTPUT"
-  echo-version:
-    runs-on: ubuntu-latest
-    needs: extract
-    steps:
-      - run: echo ${{needs.extract.outputs.major}}.${{needs.extract.outputs.minor}}.${{needs.extract.outputs.patch}}
+      - id: echo-version
+        run: |
+          echo ${{steps.get-version.outputs.major}}.${{steps.get-version.outputs.minor}}.${{steps.get-version.outputs.patch}}
   update-version:
     needs: extract
     uses: ./.github/workflows/java-update-version.yaml
