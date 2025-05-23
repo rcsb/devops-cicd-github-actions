@@ -17,6 +17,10 @@ on:
         type: string
         default: "false"
         description: "Build and push a staging tagged container image for this application on commits to the mainline_branch."
+      do_production_build:
+        type: string
+        default: "true"
+        description: "Build and push a production tagged container image for this application on commits to the mainline_branch."
       # TODO remove once we are out of OpenStack and build-locker artifacts are not needed anymore
       distribution:
         description: 'buildlocker distribution name'
@@ -45,6 +49,7 @@ jobs:
           echo "Is github.event_name != 'pull_request': ${{ github.event_name != 'pull_request' }}"
           echo "=== Check environment conditionals"
           echo "inputs.do_staging_build: ${{ inputs.do_staging_build }}"
+          echo "inputs.do_production_build: ${{ inputs.do_production_build }}"
   # Test projects
   test_mvn:
     # If we are in a commit from the [actions] pipeline (see java-roll-version-and-release.yaml), do nothing
