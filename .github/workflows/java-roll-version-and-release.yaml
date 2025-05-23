@@ -67,8 +67,11 @@ jobs:
           git push origin $NEW_VERSION
 
   build_jib_production:
-    name: "Build docker image via jib with tags: production,${{ needs.extract.outputs.major }}.${{ needs.extract.outputs.minor }}.${{ needs.extract.outputs.patch }}"
-    needs: update-version-commit
+    name: "Build docker image via jib with tags: production,<VERSION>"
+    # note we must explicitly declare extract as a dep to use its outputs
+    needs:
+      - update-version-commit
+      - extract
     uses: ./.github/workflows/run_mvn.yaml
     with:
       script: package jib:build -Djib.to.tags=production,${{ needs.extract.outputs.major }}.${{ needs.extract.outputs.minor }}.${{ needs.extract.outputs.patch }} -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
@@ -82,9 +85,11 @@ jobs:
       type: "${{ inputs.type }}"
 
   next-dev-cycle-commit:
+    # note we must explicitly declare extract as a dep to use its outputs
     needs:
       - call-deploy-to-build-locker
       - build_jib_production
+      - extract
     env:
       NEW_VERSION: ${{ needs.extract.outputs.major }}.${{ needs.extract.outputs.minor }}.${{ needs.extract.outputs.patch }}
     runs-on:
