@@ -47,7 +47,7 @@ jobs:
           echo "inputs.do_staging_build: ${{ inputs.do_staging_build }}"
   # Test projects
   test_mvn:
-    # If we are in a commit from the [actions] pipeline (see java-java-update-version-and-release.yaml), do nothing
+    # If we are in a commit from the [actions] pipeline (see java-roll-version-and-release.yaml), do nothing
     if: |
       !contains(github.event.head_commit.message, '[actions]')
     name: "Run tests via mvn"
@@ -56,7 +56,7 @@ jobs:
       script: "test --no-transfer-progress"
       publish_surefire_test_report: true
   build_mvn:
-    # If we are in a commit from the [actions] pipeline (see java-java-update-version-and-release.yaml), do nothing
+    # If we are in a commit from the [actions] pipeline (see java-roll-version-and-release.yaml), do nothing
     if: |
       !contains(github.event.head_commit.message, '[actions]')
     name: "Build project with mvn"
