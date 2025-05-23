@@ -17,6 +17,15 @@ on:
         type: string
         default: "false"
         description: "Build and push a staging tagged container image for this application on commits to the mainline_branch."
+      # TODO remove once we are out of OpenStack and build-locker artifacts are not needed anymore
+      distribution:
+        description: 'buildlocker distribution name'
+        type: string
+        required: true
+      type:
+        description: 'buildlocker distribution type [war|jar*]. Use any other value to skip pushing to build-locker'
+        type: string
+        required: false
 
 jobs:
   debug:
@@ -64,12 +73,21 @@ jobs:
     uses: ./.github/workflows/run_mvn.yaml
     with:
       script: package jib:build -Djib.to.tags=${{ github.ref_name }} -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
+  # Production jobs
+  # The production build is taken care within this job as part of rolling version in commits
   roll_version:
-    name: "Roll maven version"
+    if: |
+      inputs.do_production_build == 'true' &&
+      github.ref_name == inputs.mainline_branch &&
+      github.event_name != 'pull_request'
+    name: "Roll maven version and release production"
     needs:
       - test_mvn
       - build_mvn
-    uses: ./.github/workflows/java-roll-version.yaml
+    uses: ./.github/workflows/java-roll-version-and-release.yaml
+    with:
+      distribution: ${{ inputs.distribution }}
+      type: ${{ inputs.type }}
   # Staging jobs
   # TODO review if we actually need staging. I don't see what the use is - JD 2025-05-21
   build_jib_staging:
@@ -84,5 +102,3 @@ jobs:
     uses: ./.github/workflows/run_mvn.yaml
     with:
       script: package jib:build -Djib.to.tags=staging -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
-  # Production jobs
-  # The production build is taken care by a separate workflow that triggers on tag: release-on-tag.yaml

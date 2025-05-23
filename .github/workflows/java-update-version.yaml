@@ -15,12 +15,21 @@ on:
         description: 'Patch version'
         type: string
         required: true
+      # TODO remove these 2 params once we are out of OpenStack and build-locker build is not needed anymore
+      distribution:
+        description: 'buildlocker distribution name'
+        type: string
+        required: true
+      type:
+        description: 'buildlocker distribution type [war|jar*]. Use any other value to skip pushing to build-locker'
+        type: string
+        required: false
 
 env:
   NEW_VERSION: "${{ inputs.major }}.${{ inputs.minor }}.${{ inputs.patch }}"
 
 jobs:
-  update-version:
+  update-version-commit:
     runs-on:
       - self-hosted
       - java
@@ -34,11 +43,43 @@ jobs:
       - run: mvn --version
       - name: Set version
         run: mvn versions:set -DnewVersion=$NEW_VERSION --no-transfer-progress
-      - name: Commit and tag new version
+      - name: Commit and tag new version (release commit)
         run: |
           git add $(find . -name "pom.xml")
           git commit -m "[actions] Updated version in pom.xml to $NEW_VERSION"
           git tag $NEW_VERSION
+      - name: Push back to GitHub
+        # Note we must push or otherwise next job won't have the commit (every job starts from scratch)
+        run: |
+          git push --all
+          git push origin $NEW_VERSION
+
+  build_jib_production:
+    name: "Build docker image via jib with tags: production,$NEW_VERSION"
+    needs: update-version-commit
+    uses: ./.github/workflows/run_mvn.yaml
+    with:
+      script: package jib:build -Djib.to.tags=production,$NEW_VERSION -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
+
+  # TODO remove once we are out of OpenStack and build-locker artifacts are not needed anymore
+  call-deploy-to-build-locker:
+    needs:
+      - build_jib_production
+    uses: ./.github/workflows/deploy-to-buildlocker.yaml
+    with:
+      distribution: "${{ inputs.distribution }}"
+      type: "${{ inputs.type }}"
+
+  next-dev-cycle-commit:
+    runs-on:
+      - self-hosted
+      - java
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup git author information
+        run: |
+          git config user.name RCSBSystem
+          git config user.email it@rcsb.org
       - name: Increment version
         run: |
           NEXT_PATCH=$(mvn build-helper:parse-version help:evaluate -Dexpression=parsedVersion.nextIncrementalVersion -q -DforceStdout --no-transfer-progress)
