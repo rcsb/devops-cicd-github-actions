@@ -18,9 +18,9 @@ jobs:
       - uses: actions/checkout@v4
       - id: get-version
         run: |
-          echo "major=$(mvn --quiet build-helper:parse-version help:evaluate -Dexpression=parsedVersion.majorVersion -DforceStdout --no-transfer-progress)" >> "$GITHUB_OUTPUT" 
-          echo "minor=$(mvn --quiet build-helper:parse-version help:evaluate -Dexpression=parsedVersion.minorVersion -DforceStdout --no-transfer-progress)" >> "$GITHUB_OUTPUT"
-          echo "patch=$(mvn --quiet build-helper:parse-version help:evaluate -Dexpression=parsedVersion.incrementalVersion -DforceStdout --no-transfer-progress)" >> "$GITHUB_OUTPUT"
+          echo "major=$(mvn --quiet build-helper:parse-version help:evaluate -Dexpression=parsedVersion.majorVersion -DforceStdout --no-transfer-progress)" >> $GITHUB_OUTPUT 
+          echo "minor=$(mvn --quiet build-helper:parse-version help:evaluate -Dexpression=parsedVersion.minorVersion -DforceStdout --no-transfer-progress)" >> $GITHUB_OUTPUT
+          echo "patch=$(mvn --quiet build-helper:parse-version help:evaluate -Dexpression=parsedVersion.incrementalVersion -DforceStdout --no-transfer-progress)" >> $GITHUB_OUTPUT
       - id: echo-version
         run: |
           echo ${{steps.get-version.outputs.major}}.${{steps.get-version.outputs.minor}}.${{steps.get-version.outputs.patch}}
