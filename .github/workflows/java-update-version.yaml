@@ -63,14 +63,14 @@ jobs:
 
   # TODO remove once we are out of OpenStack and build-locker artifacts are not needed anymore
   call-deploy-to-build-locker:
-    needs:
-      - build_jib_production
+    needs: update-version-commit
     uses: ./.github/workflows/deploy-to-buildlocker.yaml
     with:
       distribution: "${{ inputs.distribution }}"
       type: "${{ inputs.type }}"
 
   next-dev-cycle-commit:
+    needs: call-deploy-to-build-locker
     runs-on:
       - self-hosted
       - java
