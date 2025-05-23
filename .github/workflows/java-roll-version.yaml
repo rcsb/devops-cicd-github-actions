@@ -27,7 +27,7 @@ jobs:
           echo "patch=$(mvn --quiet build-helper:parse-version help:evaluate -Dexpression=parsedVersion.incrementalVersion -DforceStdout --no-transfer-progress)" >> $GITHUB_OUTPUT
       - id: echo-version
         run: |
-          echo ${{steps.get-version.outputs.major}}.${{steps.get-version.outputs.minor}}.${{steps.get-version.outputs.patch}}
+          echo ${{steps.major.outputs.major}}.${{steps.minor.outputs.minor}}.${{steps.patch.outputs.patch}}
   update-version:
     needs: extract
     uses: ./.github/workflows/java-update-version.yaml
