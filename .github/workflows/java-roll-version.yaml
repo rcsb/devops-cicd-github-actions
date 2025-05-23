@@ -16,10 +16,14 @@ jobs:
       patch: ${{ steps.patch.outputs.patch }}
     steps:
       - uses: actions/checkout@v4
-      - id: get-version
+      - id: major
         run: |
-          echo "major=$(mvn --quiet build-helper:parse-version help:evaluate -Dexpression=parsedVersion.majorVersion -DforceStdout --no-transfer-progress)" >> $GITHUB_OUTPUT 
+          echo "major=$(mvn --quiet build-helper:parse-version help:evaluate -Dexpression=parsedVersion.majorVersion -DforceStdout --no-transfer-progress)" >> $GITHUB_OUTPUT
+      - id: minor
+        run: |
           echo "minor=$(mvn --quiet build-helper:parse-version help:evaluate -Dexpression=parsedVersion.minorVersion -DforceStdout --no-transfer-progress)" >> $GITHUB_OUTPUT
+      - id: patch
+        run: |
           echo "patch=$(mvn --quiet build-helper:parse-version help:evaluate -Dexpression=parsedVersion.incrementalVersion -DforceStdout --no-transfer-progress)" >> $GITHUB_OUTPUT
       - id: echo-version
         run: |
