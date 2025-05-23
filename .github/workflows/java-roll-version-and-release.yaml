@@ -1,5 +1,5 @@
 # A workflow to find the current version from pom and then commit the release version (with tag) and the next dev cycle version
-# Note this uses java-java-update-version.yaml
+# Note this uses java-update-version-and-release.yaml
 name: Roll maven version and release
 on:
   workflow_call:
@@ -41,7 +41,7 @@ jobs:
           echo ${{steps.major.outputs.major}}.${{steps.minor.outputs.minor}}.${{steps.patch.outputs.patch}}
   update-version:
     needs: extract
-    uses: ./.github/workflows/java-update-version.yaml
+    uses: ./.github/workflows/java-update-version-and-release.yaml
     with:
       major: ${{ needs.extract.outputs.major }}
       minor: ${{ needs.extract.outputs.minor }}
