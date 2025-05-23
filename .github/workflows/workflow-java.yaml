@@ -17,20 +17,6 @@ on:
         type: string
         default: "false"
         description: "Build and push a staging tagged container image for this application on commits to the mainline_branch."
-  workflow_dispatch:
-    inputs:
-      mainline_branch:
-        type: string
-        default: "master"
-        description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the master branch."
-      docker_namespace:
-        type: string
-        default: "rcsb"
-        description: "The Docker image namespace built by jib. Defaults to 'rcsb'."
-      do_staging_build:
-        type: string
-        default: "false"
-        description: "Build and push a staging tagged container image for this application on commits to the mainline_branch."
 
 jobs:
   debug:
