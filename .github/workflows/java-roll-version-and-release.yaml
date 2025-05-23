@@ -82,7 +82,9 @@ jobs:
       type: "${{ inputs.type }}"
 
   next-dev-cycle-commit:
-    needs: call-deploy-to-build-locker
+    needs:
+      - call-deploy-to-build-locker
+      - build_jib_production
     env:
       NEW_VERSION: ${{ needs.extract.outputs.major }}.${{ needs.extract.outputs.minor }}.${{ needs.extract.outputs.patch }}
     runs-on:
