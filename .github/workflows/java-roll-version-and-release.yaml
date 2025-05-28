@@ -122,7 +122,7 @@ jobs:
       - name: Increment version
         run: |
           NEXT_PATCH=$(mvn build-helper:parse-version help:evaluate -Dexpression=parsedVersion.nextIncrementalVersion -q -DforceStdout --no-transfer-progress)
-          mvn versions:set -DnewVersion="${{ inputs.major }}.${{ inputs.minor }}.$NEXT_PATCH-SNAPSHOT" -DallowSnapshots --no-transfer-progress
+          mvn versions:set -DnewVersion="${{ needs.extract.outputs.major }}.${{ needs.extract.outputs.minor }}.$NEXT_PATCH-SNAPSHOT" -DallowSnapshots --no-transfer-progress
       - name: Commit new version for next dev cycle
         run: |
           git add $(find . -name "pom.xml")
