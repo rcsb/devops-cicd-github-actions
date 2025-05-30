@@ -28,6 +28,7 @@ on:
         required: true
       type:
         description: 'buildlocker distribution type [war|jar*]. Use any other value to skip pushing to build-locker'
+        default: "skip"
         type: string
         required: false
 
