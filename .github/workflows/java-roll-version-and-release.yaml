@@ -58,7 +58,7 @@ jobs:
       - name: Commit and tag new version (release commit)
         run: |
           git add $(find . -name "pom.xml")
-          git commit -m "[actions] Updated version in pom.xml to $NEW_VERSION"
+          git commit -m "[actions] Updated version in pom.xml for release $NEW_VERSION"
           git tag $NEW_VERSION
       - name: Push back to GitHub
         # Note we must push or otherwise next job won't have the commit (every job starts from scratch)
