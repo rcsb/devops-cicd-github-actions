@@ -1,3 +1,4 @@
+# TODO remove once we are out of OpenStack and build-locker artifacts are not needed anymore
 name: Deploy to Buildlocker
 
 on:
@@ -23,7 +24,13 @@ jobs:
       - self-hosted
       - java
     steps:
+      # NOTE: by default checkout will get the revision at workflow trigger time. Here we want the latest (including commits from previous jobs), that's why we need the fetch-depth and pull
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Pull latest changes
+        run: |
+          git pull origin ${{ github.ref_name }}
       - name: Build
         run: |
           mvn clean install --no-transfer-progress -Dmaven.test.skip=true
@@ -39,7 +46,13 @@ jobs:
       - self-hosted
       - java
     steps:
+      # NOTE: by default checkout will get the revision at workflow trigger time. Here we want the latest (including commits from previous jobs), that's why we need the fetch-depth and pull
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Pull latest changes
+        run: |
+          git pull origin ${{ github.ref_name }}
       - name: Build
         run: |
           mvn clean install --no-transfer-progress -Dmaven.test.skip=true

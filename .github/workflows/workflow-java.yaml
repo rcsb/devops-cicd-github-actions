@@ -1,5 +1,6 @@
 name: Java Workflow
 # Standard workflow for any Java based projects built with Jib. Because the current RCSB Java applications are tightly coupled, production image release must be separately scheduled and deployed in tandem with other Java applications.
+# In specific java maven repo project you must use these 2: workflow-java (push on any branch) and maven-release-on-tag (push on any tag)
 
 on:
   workflow_call:
@@ -12,37 +13,20 @@ on:
         type: string
         default: "rcsb"
         description: "The Docker image namespace built by jib. Defaults to 'rcsb'."
-      do_staging_build:
-        type: string
-        default: "false"
-        description: "Build and push a staging tagged container image for this application on commits to the mainline_branch."
       do_production_build:
         type: string
         default: "true"
         description: "Build and push a production tagged container image for this application on commits to the mainline_branch."
-  workflow_dispatch:
-    inputs:
-      mainline_branch:
+      # TODO remove once we are out of OpenStack and build-locker artifacts are not needed anymore
+      distribution:
+        description: 'buildlocker distribution name'
         type: string
-        default: "master"
-        description: "The mainline branch for the repo. Deployments to the staging and production environments are done only on push to this branch. Defaults to the master branch."
-      docker_namespace:
+        required: true
+      type:
+        description: 'buildlocker distribution type [war|jar*]. Use any other value to skip pushing to build-locker'
+        default: "skip"
         type: string
-        default: "rcsb"
-        description: "The Docker image namespace built by jib. Defaults to 'rcsb'."
-      do_staging_build:
-        type: string
-        default: "false"
-        description: "Build and push a staging tagged container image for this application on commits to the mainline_branch."
-      do_production_build:
-        type: string
-        default: "true"
-        description: "Build and push a production tagged container image for this application on commits to the mainline_branch."
-
-concurrency:
-  group: ${{ github.ref }}
-  # Put to true after the older buildlocker pipeline is decommissioned
-  cancel-in-progress: false
+        required: false
 
 jobs:
   debug:
@@ -61,54 +45,50 @@ jobs:
           echo "github.event_name: ${{ github.event_name }}"
           echo "Is github.event_name != 'pull_request': ${{ github.event_name != 'pull_request' }}"
           echo "=== Check environment conditionals"
-          echo "inputs.do_staging_build: ${{ inputs.do_staging_build }}"
           echo "inputs.do_production_build: ${{ inputs.do_production_build }}"
   # Test projects
   test_mvn:
+    # If we are in a commit from the [actions] pipeline (see java-roll-version-and-release.yaml), do nothing
+    if: |
+      !contains(github.event.head_commit.message, '[actions]')
     name: "Run tests via mvn"
     uses: ./.github/workflows/run_mvn.yaml
     with:
       script: "test --no-transfer-progress"
       publish_surefire_test_report: true
   build_mvn:
+    # If we are in a commit from the [actions] pipeline (see java-roll-version-and-release.yaml), do nothing
+    if: |
+      !contains(github.event.head_commit.message, '[actions]')
     name: "Build project with mvn"
     uses: ./.github/workflows/run_mvn.yaml
     with:
       script: package
-  # Push jib
+  # Push image tagged with branch name
   build_jib:
-    name: "Build and push docker image with Jib"
-    if: github.event_name != 'pull_request'
+    name: "Build and push branch-tagged docker image with Jib"
+    # We skip if not in mainline branch: that's because there will always be a production image built for the mainline branch case below. This is useful for other branches
+    if: |
+      github.event_name != 'pull_request' &&
+      github.ref_name != inputs.mainline_branch
     needs:
       - test_mvn
       - build_mvn
     uses: ./.github/workflows/run_mvn.yaml
     with:
       script: package jib:build -Djib.to.tags=${{ github.ref_name }} -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
-  # Staging jobs
-  build_jib_staging:
-    name: "Build docker image via jib with staging tag"
-    if: |
-      inputs.do_staging_build == 'true' &&
-      github.ref_name == inputs.mainline_branch &&
-      github.event_name != 'pull_request'
-    needs:
-      - test_mvn
-      - build_mvn
-    uses: ./.github/workflows/run_mvn.yaml
-    with:
-      script: package jib:build -Djib.to.tags=staging -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
   # Production jobs
-  # TODO: Increment version of project through workflow. Add this step once we are ready to retire older workflow files.
-  build_jib_production:
-    name: "Build docker image via jib with production tag"
+  # The production build is taken care within this job as part of rolling version in commits
+  roll_version:
     if: |
       inputs.do_production_build == 'true' &&
       github.ref_name == inputs.mainline_branch &&
       github.event_name != 'pull_request'
+    name: "Roll maven version and release production"
     needs:
       - test_mvn
       - build_mvn
-    uses: ./.github/workflows/run_mvn.yaml
+    uses: ./.github/workflows/java-roll-version-and-release.yaml
     with:
-      script: package jib:build -Djib.to.tags=production -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
+      distribution: ${{ inputs.distribution }}
+      type: ${{ inputs.type }}
