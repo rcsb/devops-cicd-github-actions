@@ -85,3 +85,9 @@ jobs:
           test -e ${{ inputs.distribution }}-${{ steps.convert_to_lower.outputs.lowercase }}.tgz
           ls -lrt ${{ inputs.distribution }}-${{ steps.convert_to_lower.outputs.lowercase }}.tgz
           /usr/bin/sshpass -p $(cat ~/.secrets/buildlocker_transporter_pw.txt) sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null transporter@bl-receive.rcsb.org:1-receive <<< $"put ${{ inputs.distribution }}-${{ steps.convert_to_lower.outputs.lowercase }}.tgz"
+  dummy-keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Dummy echo to keep alive this workflow"
+        run: |
+          echo "Dummy job to still execute deploy-to-buildlocker even when skipped (so that downstream jobs can work)"
