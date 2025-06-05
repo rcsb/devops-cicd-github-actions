@@ -13,10 +13,6 @@ on:
         type: string
         default: "rcsb"
         description: "The Docker image namespace built by jib. Defaults to 'rcsb'."
-      do_staging_build:
-        type: string
-        default: "false"
-        description: "Build and push a staging tagged container image for this application on commits to the mainline_branch."
       do_production_build:
         type: string
         default: "true"
@@ -49,7 +45,6 @@ jobs:
           echo "github.event_name: ${{ github.event_name }}"
           echo "Is github.event_name != 'pull_request': ${{ github.event_name != 'pull_request' }}"
           echo "=== Check environment conditionals"
-          echo "inputs.do_staging_build: ${{ inputs.do_staging_build }}"
           echo "inputs.do_production_build: ${{ inputs.do_production_build }}"
   # Test projects
   test_mvn:
@@ -69,9 +64,9 @@ jobs:
     uses: ./.github/workflows/run_mvn.yaml
     with:
       script: package
-  # Push jib
+  # Push image tagged with branch name
   build_jib:
-    name: "Build and push docker image with Jib"
+    name: "Build and push branch-tagged docker image with Jib"
     # We skip if not in mainline branch: that's because there will always be a production image built for the mainline branch case below. This is useful for other branches
     if: |
       github.event_name != 'pull_request' &&
@@ -97,17 +92,3 @@ jobs:
     with:
       distribution: ${{ inputs.distribution }}
       type: ${{ inputs.type }}
-  # Staging jobs
-  # TODO review if we actually need staging. I don't see what the use is - JD 2025-05-21
-  build_jib_staging:
-    name: "Build docker image via jib with staging tag"
-    if: |
-      inputs.do_staging_build == 'true' &&
-      github.ref_name == inputs.mainline_branch &&
-      github.event_name != 'pull_request'
-    needs:
-      - test_mvn
-      - build_mvn
-    uses: ./.github/workflows/run_mvn.yaml
-    with:
-      script: package jib:build -Djib.to.tags=staging -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
