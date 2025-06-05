@@ -19,11 +19,11 @@ on:
         description: "Build and push a production tagged container image for this application on commits to the mainline_branch."
       # TODO remove once we are out of OpenStack and build-locker artifacts are not needed anymore
       distribution:
-        description: 'buildlocker distribution name'
+        description: "buildlocker distribution name. Must be provided if 'type' is set to [war|jar]"
         type: string
-        required: true
+        required: false
       type:
-        description: 'buildlocker distribution type [war|jar*]. Use any other value to skip pushing to build-locker'
+        description: 'buildlocker distribution type [war|jar]. Use any other value to skip pushing to build-locker'
         default: "skip"
         type: string
         required: false
