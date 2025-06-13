@@ -83,6 +83,7 @@ jobs:
           SAFE_BRANCH="${{ github.ref_name }}"
           SAFE_BRANCH="${SAFE_BRANCH//\//-}"
           echo "We will use tag ${SAFE_BRANCH} for pushing to Harbor. Original git branch name was ${{ github.ref_name }}"
+          echo "SAFE_BRANCH=$SAFE_BRANCH" >> $GITHUB_ENV
       - name: "Push image to Harbor"
         run: |
           mvn package jib:build -Djib.to.tags=${SAFE_BRANCH} -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
