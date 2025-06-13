@@ -84,9 +84,10 @@ jobs:
           SAFE_BRANCH="${SAFE_BRANCH//\//-}"
           echo "We will use tag ${SAFE_BRANCH} for pushing to Harbor. Original git branch name was ${{ github.ref_name }}"
           echo "SAFE_BRANCH=$SAFE_BRANCH" >> $GITHUB_ENV
+      - uses: actions/checkout@v4
       - name: "Push image to Harbor"
         run: |
-          mvn package jib:build -Djib.to.tags=$SAFE_BRANCH -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
+          mvn package jib:build -Djib.to.tags=${SAFE_BRANCH} -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
   # Production jobs
   # The production build is taken care within this job as part of rolling version in commits
   roll_version:
