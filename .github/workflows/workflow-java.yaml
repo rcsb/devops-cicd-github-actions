@@ -74,9 +74,18 @@ jobs:
     needs:
       - test_mvn
       - build_mvn
-    uses: ./.github/workflows/run_mvn.yaml
-    with:
-      script: package jib:build -Djib.to.tags=${{ github.ref_name }} -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
+    runs-on:
+      - "self-hosted"
+      - "java"
+    steps:
+      - name: "Create safe tag for docker (no '/' allowed)"
+        run: |
+          SAFE_BRANCH="${{ github.ref_name }}"
+          SAFE_BRANCH="${SAFE_BRANCH//\//-}"
+          echo "We will use tag ${SAFE_BRANCH} for pushing to Harbor. Original git branch name was ${{ github.ref_name }}"
+      - name: "Push image to Harbor"
+        run: |
+          mvn package jib:build -Djib.to.tags=${SAFE_BRANCH} -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
   # Production jobs
   # The production build is taken care within this job as part of rolling version in commits
   roll_version:
