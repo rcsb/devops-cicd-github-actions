@@ -78,15 +78,12 @@ jobs:
       - "self-hosted"
       - "java"
     steps:
-      - name: "Create safe tag for docker (no '/' allowed)"
+      - uses: actions/checkout@v4
+      - name: "Push to Harbor with branch name as tag (replacing disallowed '/' by '-')"
         run: |
           SAFE_BRANCH="${{ github.ref_name }}"
           SAFE_BRANCH="${SAFE_BRANCH//\//-}"
           echo "We will use tag ${SAFE_BRANCH} for pushing to Harbor. Original git branch name was ${{ github.ref_name }}"
-          echo "SAFE_BRANCH=$SAFE_BRANCH" >> $GITHUB_ENV
-      - uses: actions/checkout@v4
-      - name: "Push image to Harbor"
-        run: |
           mvn package jib:build -Djib.to.tags=${SAFE_BRANCH} -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
   # Production jobs
   # The production build is taken care within this job as part of rolling version in commits
