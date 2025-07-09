@@ -47,4 +47,4 @@ jobs:
       - name: Execute rolling restart
         run: |
           kubectl --namespace ${{ inputs.namespace }} rollout restart deployment/${{ inputs.deployment_name }}
-          kubectl --namespace ${{ inputs.namespace }} rollout status deployment/${{ inputs.deployment_name }} --watch=true --timout=${{ inputs.timeout }}
+          kubectl --namespace ${{ inputs.namespace }} rollout status deployment/${{ inputs.deployment_name }} --watch=true --timeout=${{ inputs.timeout }}
