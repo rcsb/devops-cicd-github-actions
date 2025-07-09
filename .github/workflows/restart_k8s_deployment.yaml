@@ -17,6 +17,11 @@ on:
         type: string
         required: true
         description: "The region of the cluster containing the deployment."
+      timeout:
+        type: string
+        required: false
+        default: '10m'
+        description: "How long to wait before giving up on the deployment being ready."
   workflow_dispatch:
     inputs:
       deployment_name:
@@ -42,4 +47,4 @@ jobs:
       - name: Execute rolling restart
         run: |
           kubectl --namespace ${{ inputs.namespace }} rollout restart deployment/${{ inputs.deployment_name }}
-          kubectl --namespace ${{ inputs.namespace }} rollout status deployment/${{ inputs.deployment_name }} --watch=true
+          kubectl --namespace ${{ inputs.namespace }} rollout status deployment/${{ inputs.deployment_name }} --watch=true --timout=${{ inputs.timeout }}
