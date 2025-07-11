@@ -43,6 +43,7 @@ jobs:
     runs-on:
       - "self-hosted"
       - "kubectl-${{ inputs.region }}"
+    timeout-minutes: ${{ inputs.timeout }}
     steps:
       - name: Execute rolling restart
         run: |
