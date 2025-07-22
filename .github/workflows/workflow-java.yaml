@@ -1,6 +1,5 @@
 name: Java Workflow
 # Standard workflow for any Java based projects built with Jib. Because the current RCSB Java applications are tightly coupled, production image release must be separately scheduled and deployed in tandem with other Java applications.
-# In specific java maven repo project you must use these 2: workflow-java (push on any branch) and maven-release-on-tag (push on any tag)
 
 on:
   workflow_call:
