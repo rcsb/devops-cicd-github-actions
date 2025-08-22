@@ -40,7 +40,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: {{ include "helm_chart.pvname" . }}
 spec:
-  storageClassName: {{ include "helm_chart.pvname" . }}
+  storageClassName: csi-cephfs-sc
   accessModes:
     {{- range .Values.rookCeph.pvcAccessModes }}
     - {{ . }}
