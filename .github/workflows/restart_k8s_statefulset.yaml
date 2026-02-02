@@ -50,6 +50,3 @@ jobs:
       - name: Execute rolling restart
         run: |
           kubectl --namespace ${{ inputs.namespace }} rollout restart statefulset/${{ inputs.statefulset_name }}
-          kubectl --namespace ${{ inputs.namespace }} rollout status statefulset/${{ inputs.statefulset_name }} \
-            --watch=true \
-            --timeout=${{ inputs.timeout }}
