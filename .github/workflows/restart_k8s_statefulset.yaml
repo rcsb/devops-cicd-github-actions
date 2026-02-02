@@ -1,0 +1,55 @@
+name: Restart K8s StatefulSet
+# Restart StatefulSets in K8s with the latest Docker image.
+# Note: Pods restart only if the StatefulSet pod template changes.
+# `kubectl rollout restart statefulset` safely handles this by updating an annotation.
+
+on:
+  workflow_call:
+    inputs:
+      statefulset_name:
+        type: string
+        required: true
+        description: "The name of the StatefulSet in the K8s namespace to restart."
+      namespace:
+        type: string
+        required: true
+        description: "The namespace of the StatefulSet in K8s to restart."
+      region:
+        type: string
+        required: true
+        description: "The region of the cluster containing the StatefulSet."
+      timeout:
+        type: string
+        required: false
+        default: '10m'
+        description: "How long to wait before giving up on the StatefulSet being ready."
+
+  workflow_dispatch:
+    inputs:
+      statefulset_name:
+        type: string
+        required: true
+        description: "The name of the StatefulSet in the K8s namespace to restart."
+      namespace:
+        type: string
+        required: true
+        description: "The namespace of the StatefulSet in K8s to restart."
+      region:
+        type: string
+        required: true
+        description: "The region of the cluster containing the StatefulSet."
+
+jobs:
+  restart_statefulset:
+    name: "Restart StatefulSet"
+    runs-on:
+      - "self-hosted"
+      - "kubectl-${{ inputs.region }}"
+
+    steps:
+      - name: Execute rolling restart
+        run: |
+          kubectl --namespace ${{ inputs.namespace }} rollout restart statefulset/${{ inputs.statefulset_name }}
+          kubectl --namespace ${{ inputs.namespace }} rollout status statefulset/${{ inputs.statefulset_name }} \
+            --watch=true \
+            --timeout=${{ inputs.timeout }}
