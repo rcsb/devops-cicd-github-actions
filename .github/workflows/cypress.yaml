@@ -42,7 +42,7 @@ jobs:
         env:
           CYPRESS_SCREENSHOTS_FOLDER: /home/runner/cypress/screenshots
           NODE_ENV: test
-          SIERRA_CONFIG: https://cdn.rcsb.org/config/c5aecb46a9fe2698498ed4d1ab1925e9a8fef7f5/profiles/parks/sierra/sierra-base.app.json,https://cdn.rcsb.org/config/c5aecb46a9fe2698498ed4d1ab1925e9a8fef7f5/profiles/parks/sierra/branch/sierra-${{ inputs.branch }}.app.json
+          SIERRA_CONFIG: cypress/config/sierra-base.json,cypress/config/sierra-app.json,cypress/config/sierra-secrets.json
       - name: Cypress nightly test
         if: inputs.type == 'nightly'
         uses: cypress-io/github-action@v6
@@ -56,4 +56,4 @@ jobs:
         env:
           CYPRESS_SCREENSHOTS_FOLDER: /home/runner/cypress/screenshots
           NODE_ENV: test
-          SIERRA_CONFIG: https://cdn.rcsb.org/config/c5aecb46a9fe2698498ed4d1ab1925e9a8fef7f5/profiles/parks/sierra/sierra-base.app.json,https://cdn.rcsb.org/config/c5aecb46a9fe2698498ed4d1ab1925e9a8fef7f5/profiles/parks/sierra/branch/sierra-${{ inputs.branch }}.app.json
+          SIERRA_CONFIG: cypress/config/sierra-base.json,cypress/config/sierra-app.json,cypress/config/sierra-secrets.json
