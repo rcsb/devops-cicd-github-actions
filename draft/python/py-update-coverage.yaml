@@ -1,0 +1,100 @@
+# SPDX-FileCopyrightText: Copyright 2024, the RCSB PDB, University of California, Rutgers University, and contributors
+# SPDX-FileCopyrightText: Copyright 2020-2024, Contributors to CICD
+# SPDX-PackageHomePage: https://github.com/dmyersturnbull/cicd
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: Copyright 2020-2023, Contributors to Tyrannosaurus
+# SPDX-PackageHomePage: https://github.com/dmyersturnbull/tyrannosaurus
+# SPDX-License-Identifier: Apache-2.0
+
+# This workflow updates the code coverage reports and sends them to Coveralls and Codecov.
+# It is triggered by pushes to the main branch and release branches.
+# The workflow runs tests on multiple operating systems (Ubuntu, Windows, macOS) and Python version 3.12,
+# and sends the coverage reports to Coveralls and Codecov.
+
+name: Update coverage
+run-name: ${{ github.workflow }} on ${{ github.ref_name }}
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - 'releases/**'
+
+permissions:
+  contents: write
+  statuses: write
+  actions: write
+  security-events: write
+
+concurrency:
+  group: >
+    ${{ github.workflow }}\
+    -${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+
+  test:
+    # This job runs the tests and generates coverage reports.
+    name: Run tests
+    uses: ./.github/workflows/_test.yaml
+    secrets: inherit
+
+  send-to-coveralls:
+    name: Update coveralls
+    needs: test
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+        python:
+          - '3.12'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Download coverage artifact for ${{ matrix.os }} / Python ${{ matrix.python }}
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-${{ matrix.os }}-${{ matrix.python }}
+      - name: Send coverage to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          flag-name: run-${{ matrix.os }}-py${{ matrix.python }}
+          parallel: true
+
+  send-to-codecov:
+    name: Update coveralls and codecov
+    needs: test
+    continue-on-error: true
+    #if: !cancelled()
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+        python:
+          - '3.12'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Send coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          env_vars: matrix.os,matrix.python
+          fail_ci_if_error: true
+
+  finalize-codecov-send:
+    # This job sends final data to Coveralls to mark the parallel runs as finished.
+    # Will not run if the 'send-to-codecov' job was not cancelled
+    needs: send-to-codecov
+    continue-on-error: true
+    #if: !cancelled()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send final data to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          parallel-finished: true
+          file: coverage.json

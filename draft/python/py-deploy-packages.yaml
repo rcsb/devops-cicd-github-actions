@@ -1,0 +1,209 @@
+# SPDX-FileCopyrightText: Copyright 2024, the RCSB PDB, University of California, Rutgers University, and contributors
+# SPDX-FileCopyrightText: Copyright 2020-2024, Contributors to CICD
+# SPDX-PackageHomePage: https://github.com/dmyersturnbull/cicd
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: Copyright 2020-2023, Contributors to Tyrannosaurus
+# SPDX-PackageHomePage: https://github.com/dmyersturnbull/tyrannosaurus
+# SPDX-License-Identifier: Apache-2.0
+
+# This workflow automates a software release, deploying packages to four targets.
+# These targets are GitHub releases, PyPi, the GitHub Container Registry, and Docker Hub.
+# Additionally, it updates "moving" tags: "latest", which is always updated, and, e.g., "v1", "v2" for the latest release per major version.
+# The workflow is triggered by pushes of tags matching "latest" or a semver version prefixed by "v".
+# These secrets are needed:
+# DOCKERHUB_USERNAME
+# DOCKERHUB_TOKEN
+# PYPI_TOKEN
+# GITHUB_TOKEN (provided automatically by GitHub Actions)
+# Note that Docker Hub will not be included as a target if DOCKERHUB_USERNAME is not set.
+# Notes about container registries:
+# - QEMU is set up for cross-platform builds.
+# - Docker Buildx is used for advanced Docker image building and pushing.
+# - Docker metadata action extracts metadata such as tags and labels for the images.
+# - Cosign is used to sign the Docker images to ensure their integrity and authenticity.
+
+name: Deploy packages
+run-name: ${{ github.workflow }} for ${{ github.ref_name }}
+
+on:
+  push:
+    tags:
+      # Mike handles the 'latest' tag
+      - '^v(\d+)\.(\d+)\.(\d+)(?:-(alpha|beta|rc))?$' # match all semver, including prerelease
+      - '^v(\d+)\.(\d+)\.(\d+)$' # match all non-prerelease semver
+      #- '^v(\d+)\.([1-9]\d*)\.(\d+)$' # OR: match only 0.1.0+ (non-prerelease)
+      #- '^(v[1-9]\d*)\.(\d+)\.(\d+)$' # OR: match only 1.0.0+ (non-prerelease)
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.sha }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  id-token: write
+  packages: write
+  attestations: write
+
+jobs:
+
+  tag-latest:
+    # This job tags the release as 'latest' and 'v<x>', where <x> is its major version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: Actions-R-Us/actions-tagger@v2
+        with:
+          publish_latest_tag: true
+          token: ${{ secrets.PAT }}
+
+  build-dist:
+    # This job builds the Hatch distribution artifacts (wheels and sdist).
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Hatch and build artifacts
+        run: |
+          pip install hatch~=1.12
+          hatch build
+      - name: Upload Hatch artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  check-dockerfile-exists:
+    # This job checks whether the Dockerfile exists.
+    runs-on: ubuntu-latest
+    needs: build-dist
+    outputs:
+      docker_tags: ${{ steps.check-dockerfile.outputs.found }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Check for Dockerfile
+        id: check-dockerfile
+        run: |
+          if [[ -f Dockerfile ]]; then
+            echo "Dockerfile exists."
+            echo "found=true" >> ${GITHUB_OUTPUT}
+          else
+            echo "Dockerfile does not exist."
+            echo "found=false" >> ${GITHUB_OUTPUT}
+          fi
+
+  publish-github-release:
+    # This job publishes the release on GitHub.
+    runs-on: ubuntu-latest
+    needs: build-dist
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          token: ${{ secrets.github_token }}
+          files: dist/*
+
+  publish-pypi:
+    # This job publishes the package to PyPI.
+    name: Publish to PyPi
+    needs: build-dist
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+      - name: Install Hatch
+        run: |
+          pip install hatch~=1.12
+      - name: Publish to PyPi
+        run: |
+          hatch publish
+        env:
+          HATCH_INDEX_USER: __token__
+          HATCH_INDEX_AUTH: ${{ secrets.PYPI_TOKEN }}
+        if: secrets.PYPI_TOKEN != ''
+
+  publish-docker:
+    name: Publish to Docker container registries
+    needs:
+      - bump
+    runs-on: ${{ os }}
+    steps:
+      # https://github.com/sigstore/cosign-installer
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+      - name: Download Docker image
+        uses: actions/download-artifact@v4
+        with:
+          name: docker
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ GITHUB_REPOSITORY }}
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        env:
+          dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
+        with:
+          username: ${{ env.dockerhub_username }}
+          password: ${{ env.dockerhub_token }}
+        if: ${{ env.dockerhub_username != '' }}
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        env:
+          ghcr_username: ${{ github.actor }}
+          ghcr_password: ${{ github.token }}
+        with:
+          registry: ghcr.io
+      - name: Push Docker image
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          # type=gha,mode=max is meant to maximize cache hits.
+          cache-to: type=gha,mode=max
+      # Sign the resulting Docker image digest except on PRs.
+      # This will only write to the public Rekor transparency log when the Docker
+      # repository is public to avoid leaking data.
+      # To publish transparency data even for private images, pass --force to cosign.
+      # https://github.com/sigstore/cosign
+      - name: Sign the published Docker image
+        env:
+          # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
+          TAGS: ${{ steps.docker-meta.outputs.tags }}
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+        # This step uses the identity token to provision an ephemeral certificate
+        # against the sigstore community Fulcio instance.
+        run: |
+          echo "${TAGS}" \
+          | xargs \
+            --replace _ \
+            cosign sign --yes _@${DIGEST}
+
+      #- name: Generate artifact attestation
+      #  uses: actions/attest-build-provenance@v1
+      #  with:
+      #    subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
+      #    subject-digest: ${{ steps.push.outputs.digest }}
+      #    push-to-registry: true
