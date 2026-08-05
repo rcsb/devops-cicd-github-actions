@@ -26,10 +26,10 @@ on:
 
 jobs:
   cypress-test:
-    runs-on: ["self-hosted","node-${{ inputs.node_version }}","west"]
+    runs-on: ["self-hosted","node-${{ inputs.node_version }}","east"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Cypress headless test
         if: inputs.type == 'push'
         uses: cypress-io/github-action@v6
