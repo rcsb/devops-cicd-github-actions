@@ -30,7 +30,11 @@ jobs:
       - "self-hosted"
       - "node-${{ inputs.node_version }}"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          fetch-tags: false
+
       - name: "Install dependencies"
         run: npm ci
       - name: "Run ${{ inputs.script }}"
