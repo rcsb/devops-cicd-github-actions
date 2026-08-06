@@ -22,6 +22,7 @@ jobs:
     runs-on:
       - self-hosted
       - hadolint
+      - east
     env:
       DOCKERFILE: ${{ inputs.dockerfile_location }}
       TEMP_DOCKERFILE: .~hadolint.temp~
