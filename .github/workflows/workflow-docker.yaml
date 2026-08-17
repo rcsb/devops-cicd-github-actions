@@ -106,6 +106,10 @@ jobs:
       repo_project: ${{ inputs.repo_project }}
       docker_image_name: ${{ inputs.docker_image_name }}
       docker_build_context: ${{ inputs.docker_build_context }}
+      # Without this the build ignored dockerfile_location and always read
+      # <context>/Dockerfile, so a repo whose Dockerfile is named anything else linted
+      # the right file and then failed to build.
+      dockerfile_location: ${{ inputs.dockerfile_location }}
   # Staging jobs
   build_docker_staging:
     name: "Push docker image with staging tag"

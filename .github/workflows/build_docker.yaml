@@ -20,6 +20,10 @@ on:
         type: string
         default: "."
         description: "The path location of the docker build context, relative to the project root."
+      dockerfile_location:
+        type: string
+        default: ""
+        description: "The location of the Dockerfile relative to the root of the repository. Empty means the Dockerfile at the root of the build context."
       additional_tag:
         type: string
         default: ""
@@ -42,6 +46,10 @@ on:
         type: string
         default: "."
         description: "The path location of the docker build context, relative to the project root."
+      dockerfile_location:
+        type: string
+        default: ""
+        description: "The location of the Dockerfile relative to the root of the repository. Empty means the Dockerfile at the root of the build context."
       additional_tag:
         type: string
         default: ""
@@ -81,6 +89,10 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ inputs.docker_build_context }}
+          # Left empty by callers that keep their Dockerfile at the root of the build
+          # context: the action then omits --file and buildx falls back to
+          # <context>/Dockerfile, which is what this workflow did before the input existed.
+          file: ${{ inputs.dockerfile_location }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
