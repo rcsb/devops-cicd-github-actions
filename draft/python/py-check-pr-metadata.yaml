@@ -1,0 +1,77 @@
+# SPDX-FileCopyrightText: Copyright 2024, the RCSB PDB, University of California, Rutgers University, and contributors
+
+# TODO: This is not complete.
+
+name: Validate PR metadata
+run-name: ${{ github.workflow }} on ${{ github.ref_name }}
+
+on:
+  pull_request:
+    types:
+      - ready_for_review
+      - edited
+  issue_comment:
+    types:
+      - created
+
+jobs:
+
+  commitizen-check:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Commitizen
+        run: pip install commitizen~=3.27
+
+      - name: Check if comment contains /please-check-pr-metadata
+        if: github.event_name == 'issue_comment'
+        id: check-comment
+        run: |
+          exit [[ "${{ github.event.comment.body }}" == *"/please-check-pr-metadata"* ]]
+
+      - name: Validate proposed commit message with Commitizen
+        id: validate-commit-message
+        run: |
+          commit_message=$(jq --raw-output '.pull_request.title' "${GITHUB_EVENT_PATH}")
+          commit_body=$(jq --raw-output '.pull_request.body' "${GITHUB_EVENT_PATH}")
+          commit_message="${commit_message}\n\n${commit_body}"
+          cz_output=$(echo "${commit_message}" | cz check 2>&1) && {
+            echo "**✅** The PR title+description meets commit message requirements.\n\n" \
+            >> ${GITHUB_STEP_SUMMARY}
+          } || {
+            echo "fail_msg=The PR title+description do not meet commit message requirements: ${cz_output}" \
+            >> ${GITHUB_ENV}
+            echo "\
+              **❌** The PR title+description does not meet commit message requirements: \
+              \n```\n${cz_output}\n```\n\n" \
+            >> ${GITHUB_STEP_SUMMARY}
+            exit 1
+          }
+
+      - name: Set validation status
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { context, github } = require('@actions/github');
+            const status = context.job === 'success' ? 'success' : 'failure';
+            const description = status === 'success' ?
+              'Validation passed'
+              : 'Validation failed: ' + process.env.fail_msg;
+            await github.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.payload.pull_request.head.sha,
+              state: status,
+              description: status === 'success' ? 'Validation passed' : 'Validation failed',
+              context: 'PR Metadata Validation'
+            });

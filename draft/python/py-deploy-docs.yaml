@@ -1,0 +1,56 @@
+# SPDX-FileCopyrightText: Copyright 2024, the RCSB PDB, University of California, Rutgers University, and contributors
+# SPDX-FileCopyrightText: Copyright 2020-2024, Contributors to CICD
+# SPDX-PackageHomePage: https://github.com/dmyersturnbull/cicd
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: Copyright 2020-2023, Contributors to Tyrannosaurus
+# SPDX-PackageHomePage: https://github.com/dmyersturnbull/tyrannosaurus
+# SPDX-License-Identifier: Apache-2.0
+
+# This deploys documentation to GitHub Pages.
+
+name: Deploy docs
+run-name: ${{ github.workflow }} for ${{ github.ref_name }}
+# Deploys mkdocs documentation to GitHub Pages
+# Mike (https://pypi.org/project/mike/) is used to maintain multiple versions
+
+on:
+  push:
+    tags:
+      # Mike handles the 'latest' tag
+      - '^v(\d+)\.(\d+)\.(\d+)(?:-(alpha|beta|rc))?$' # match all semver, including prerelease
+      - '^v(\d+)\.(\d+)\.(\d+)$' # match all non-prerelease semver
+      #- '^v(\d+)\.([1-9]\d*)\.(\d+)$' # OR: match only 0.1.0+ (non-prerelease)
+      #- '^(v[1-9]\d*)\.(\d+)\.(\d+)$' # OR: match only 1.0.0+ (non-prerelease)
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.sha }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  deploy-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          pip install hatch~=1.12
+      - name: Deploy docs for ${{ github.ref_name }}
+        run: |
+          hatch run x-deploy-docs ${{ github.ref_name }} --push
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
