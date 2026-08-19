@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@v6
       - name: Cypress headless test
         if: inputs.type == 'push'
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           start: npm start
           wait-on: 'http://localhost:8080'
@@ -45,7 +45,7 @@ jobs:
           SIERRA_CONFIG: cypress/config/sierra-base.json,cypress/config/sierra-app.json,cypress/config/sierra-secrets.json
       - name: Cypress nightly test
         if: inputs.type == 'nightly'
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           start: npm start
           wait-on: 'http://localhost:8080'
