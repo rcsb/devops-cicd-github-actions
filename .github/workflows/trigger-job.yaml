@@ -1,0 +1,56 @@
+name: Trigger K8s CronJob
+# Manually trigger a Kubernetes CronJob by creating a Job from it.
+# Useful for running a scheduled job on-demand outside of its regular cron schedule.
+
+on:
+  workflow_call:
+    inputs:
+      cronjob_name:
+        type: string
+        required: true
+        description: "The name of the CronJob in the K8s namespace to trigger."
+      namespace:
+        type: string
+        required: true
+        description: "The namespace of the CronJob in K8s to trigger."
+      region:
+        type: string
+        required: true
+        description: "The region of the cluster containing the CronJob."
+      timeout:
+        type: string
+        required: false
+        default: '10m'
+        description: "How long to wait before giving up on the job being complete."
+  workflow_dispatch:
+    inputs:
+      cronjob_name:
+        type: string
+        required: true
+        description: "The name of the CronJob in the K8s namespace to trigger."
+      namespace:
+        type: string
+        required: true
+        description: "The namespace of the CronJob in K8s to trigger."
+      region:
+        type: string
+        required: true
+        description: "The region of the cluster containing the CronJob."
+
+jobs:
+  trigger_cronjob:
+    name: "Trigger CronJob run."
+    runs-on:
+      - "self-hosted"
+      - "kubectl-${{ inputs.region }}"
+    steps:
+      - name: Create job from CronJob
+        run: |
+          JOB_NAME="${{ inputs.cronjob_name }}-manual-$(date +%Y%m%d%H%M%S)"
+          echo "JOB_NAME=$JOB_NAME" >> "$GITHUB_ENV"
+          kubectl --namespace ${{ inputs.namespace }} create job "$JOB_NAME" --from=cronjob/${{ inputs.cronjob_name }}
+
+      - name: Wait for job completion
+        run: |
+          kubectl --namespace ${{ inputs.namespace }} wait --for=condition=complete job/$JOB_NAME --timeout=${{ inputs.timeout || '10m' }} || \
+          (kubectl --namespace ${{ inputs.namespace }} logs job/$JOB_NAME; exit 1)
