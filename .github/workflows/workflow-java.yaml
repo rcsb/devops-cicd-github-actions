@@ -16,16 +16,6 @@ on:
         type: string
         default: "true"
         description: "Build and push a production tagged container image for this application on commits to the mainline_branch."
-      # TODO remove once we are out of OpenStack and build-locker artifacts are not needed anymore
-      distribution:
-        description: "buildlocker distribution name. Must be provided if 'type' is set to [war|jar]"
-        type: string
-        required: false
-      type:
-        description: 'buildlocker distribution type [war|jar]. Use any other value to skip pushing to build-locker'
-        default: "skip"
-        type: string
-        required: false
 
 jobs:
   debug:
@@ -96,6 +86,3 @@ jobs:
       - test_mvn
       - build_mvn
     uses: ./.github/workflows/java-roll-version-and-release.yaml
-    with:
-      distribution: ${{ inputs.distribution }}
-      type: ${{ inputs.type }}

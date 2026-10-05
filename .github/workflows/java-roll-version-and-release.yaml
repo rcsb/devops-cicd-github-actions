@@ -2,17 +2,6 @@
 name: Roll maven version and release
 on:
   workflow_call:
-    inputs:
-      # TODO remove these 2 params once we are out of OpenStack and build-locker build is not needed anymore
-      distribution:
-        description: 'buildlocker distribution name'
-        type: string
-        required: true
-      type:
-        description: 'buildlocker distribution type [war|jar*]. Use any other value to skip pushing to build-locker'
-        type: string
-        required: false
-
 
 jobs:
   extract:
@@ -88,18 +77,9 @@ jobs:
           echo "Jib build and push with tags production,${{ needs.extract.outputs.major }}.${{ needs.extract.outputs.minor }}.${{ needs.extract.outputs.patch }}"
           mvn package jib:build -Djib.to.tags=production,${{ needs.extract.outputs.major }}.${{ needs.extract.outputs.minor }}.${{ needs.extract.outputs.patch }} -Djib.target.namespace=rcsb --no-transfer-progress -Dmaven.test.skip=true -Djib.httpTimeout=0
 
-  # TODO remove once we are out of OpenStack and build-locker artifacts are not needed anymore
-  call-deploy-to-build-locker:
-    needs: update-version-commit
-    uses: ./.github/workflows/deploy-to-buildlocker.yaml
-    with:
-      distribution: "${{ inputs.distribution }}"
-      type: "${{ inputs.type }}"
-
   next-dev-cycle-commit:
     # note we must explicitly declare extract as a dep to use its outputs
     needs:
-      - call-deploy-to-build-locker
       - build_jib_production
       - extract
     env:
