@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: Copyright 2020-2024, Contributors to CICD
+# SPDX-PackageHomePage: https://github.com/dmyersturnbull/cicd
+# SPDX-License-Identifier: Apache-2.0
+
+changelog:
+  exclude:
+    labels:
+      - 'type: chore'
+      - 'type: style'
+      - 'exclude'
+  categories:
+    - title: '💥 Breaking changes'
+      labels:
+        - 'breaking'
+    - title: '🗑️ Deprecation'
+      labels:
+        - 'type: deprecation'
+    - title: '🔒️ Security'
+      labels:
+        - 'type: security'
+    - title: '✨ Features'
+      labels:
+        - 'type: feature'
+    - title: '🐛 Fixes'
+      labels:
+        - 'type: fix'
+    - title: '⚡️ Performance'
+      labels:
+        - 'type: performance'
+    - title: '📝 Documentation'
+      labels:
+        - 'type: docs'
+    - title: '🔧 Build'
+      labels:
+        - 'type: build'
+    - title: '🍒 Miscellaneous'
+      labels:
+        - 'type: refactor'
+        - 'type: test'
+        - 'type: ci'
+        - 'include'
