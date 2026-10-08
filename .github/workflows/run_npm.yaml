@@ -10,7 +10,7 @@ on:
         description: "The script name as defined in package.json."
       node_version:
         type: string
-        default: "16"
+        default: "24"
         description: "The nodejs version of the runner to use."
   workflow_dispatch:
     inputs:
@@ -20,7 +20,7 @@ on:
         description: "The script name as defined in package.json."
       node_version:
         type: string
-        default: "16"
+        default: "24"
         description: "The nodejs version of the runner to use."
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
       - "self-hosted"
       - "node-${{ inputs.node_version }}"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: "Install dependencies"
         run: npm ci
       - name: "Run ${{ inputs.script }}"
