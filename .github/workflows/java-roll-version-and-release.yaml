@@ -14,7 +14,7 @@ jobs:
       minor: ${{ steps.minor.outputs.minor }}
       patch: ${{ steps.patch.outputs.patch }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - id: major
         run: |
           echo "major=$(mvn --quiet build-helper:parse-version help:evaluate -Dexpression=parsedVersion.majorVersion -DforceStdout --no-transfer-progress)" >> $GITHUB_OUTPUT
@@ -36,7 +36,7 @@ jobs:
       - java
     steps:
       - run: echo "NEW_VERSION=$NEW_VERSION"
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup git author information
         run: |
           git config user.name RCSBSystem
@@ -66,7 +66,7 @@ jobs:
       - java
     # NOTE: by default checkout will get the revision at workflow trigger time. Here we want the latest (including commits from previous jobs), that's why we need the fetch-depth and pull
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Pull latest changes
@@ -89,7 +89,7 @@ jobs:
       - java
     steps:
       # NOTE: by default checkout will get the revision at workflow trigger time. Here we want the latest (including commits from previous jobs), that's why we need the fetch-depth and pull
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Pull latest changes
