@@ -22,7 +22,7 @@ jobs:
     name: "Debug conditionals"
     runs-on:
       - "self-hosted"
-      - "java"
+      - "ubuntu-22.04"
     steps:
       - name: "Output inputs and refs"
         run: |
