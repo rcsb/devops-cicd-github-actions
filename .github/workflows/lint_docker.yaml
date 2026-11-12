@@ -28,7 +28,6 @@ jobs:
       TEMP_DOCKERFILE: .~hadolint.temp~
     steps:
       - uses: actions/checkout@v6
-      - run: |
       # hadolint's last release was in 2022.
       # However, it's decidedly not abandoned: https://github.com/hadolint/hadolint/issues/1041
       # It's also so widely used that it will find a new maintainer if needed.

@@ -49,8 +49,8 @@ on:
         description: "The namespace of the production deployment in K8s for restarts. Needed if restart_production_deployment is true."
         type: string
       node_version:
-        default: "16"
-        description: "The nodejs version of the runner to use. Defaults to 16."
+        default: "24"
+        description: "The nodejs version of the runner to use. Defaults to 24."
         type: string
   workflow_dispatch:
     inputs:
@@ -77,8 +77,8 @@ on:
         description: "The namespace of the production deployment in K8s for restarts. Needed if restart_production_deployment is true."
         type: string
       node_version:
-        default: "16"
-        description: "The nodejs version of the runner to use. Defaults to 16."
+        default: "24"
+        description: "The nodejs version of the runner to use. Defaults to 24."
 
 jobs:
   # Build jobs
