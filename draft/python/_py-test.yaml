@@ -1,0 +1,292 @@
+# SPDX-FileCopyrightText: Copyright 2024, the RCSB PDB, University of California, Rutgers University, and contributors
+# SPDX-FileCopyrightText: Copyright 2020-2024, Contributors to CICD
+# SPDX-PackageHomePage: https://github.com/dmyersturnbull/cicd
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: Copyright 2020-2023, Contributors to Tyrannosaurus
+# SPDX-PackageHomePage: https://github.com/dmyersturnbull/tyrannosaurus
+# SPDX-License-Identifier: Apache-2.0
+
+# This workflow is designed to run various types of tests and analyses on the codebase.
+# It is triggered from other workflows using `workflow_call`, with specific ref inputs.
+# Different jobs cover tests across multiple operating systems (Ubuntu, Windows, macOS) and Python versions.
+# Some jobs are conditional, triggered only by specific comments on pull requests or specific events,
+# such as '/please-review', '/please-run-tests', '/please-check-docker-build', etc.
+# TODO: Allow tests after failure to run as long as not cancelled
+
+name: Test
+run-name: >
+  ${{ github.workflow }} \
+  ${{ github.ref_name }} \
+  (triggered by ${{ github.ref_type }})
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        description: Ref to check out
+        default: main
+
+permissions:
+  contents: read
+  statuses: write
+  actions: read
+  security-events: write
+
+jobs:
+
+  preliminary:
+    name: Start Markdown table
+    runs-on: ubuntu-latest
+    steps:
+      - run:
+          echo "\n| Test | Outcome |\n| --- | --- |" >> ${GITHUB_STEP_SUMMARY}
+
+  pytest:
+    # This job runs unit tests on multiple operating systems (Ubuntu, Windows, macOS) with Python 3.12.
+    # It is triggered by pull requests, specific comments ('/please-review', '/please-run-tests'),
+    # or when called directly from another workflow.
+    # The job uploads coverage reports as artifacts for each combination of OS and Python version.
+    if: >
+      github.event_name == 'pull_request' ||
+      github.event.comment.body == '/please-review' ||
+      github.event.comment.body == '/please-run-tests' ||
+      github.event_name == 'workflow_call'
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+        python:
+          - '3.12'
+    name: Run tests for ${{ matrix.os }}, Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies and run tests
+        id: test
+        run: |
+          pip install hatch~=1.12
+          hatch run test
+          echo "\
+            | Pytest on ${os}, Python ${python} \
+            | $( (( $? == 0 )) && echo ✅ || echo ❌ ) \
+            |\
+          " >> ${GITHUB_STEP_SUMMARY}
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.os }}-${{ matrix.python }}
+          path: coverage.json
+          if-no-files-found: error
+
+  docker:
+    # This job builds Docker images on Ubuntu and Windows if a Dockerfile is present.
+    # It is triggered by pull requests, specific comments ('/please-review', '/please-check-docker-build'),
+    # or when called directly from another workflow.
+    # macOS is not included due to known limitations with Docker on macOS.
+    if: >
+      github.event_name == 'pull_request' ||
+      github.event.comment.body == '/please-review' ||
+      github.event.comment.body == '/please-check-docker-build' ||
+      github.event_name == 'workflow_call'
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+      - name: Check for Dockerfile
+        id: check-docker
+        run: |
+          [[ -f Dockerfile ]]; echo "found=$?" >> ${GITHUB_ENV}
+      - name: Build Docker image
+        if: env.found == '0'
+        run: |
+          docker build .
+          echo "\
+            | **Docker build** on ${os} \
+            | $( (( $? == 0 )) && echo ✅ || echo ❌ ) \
+            |\
+          " >> ${GITHUB_STEP_SUMMARY}
+
+  codeql:
+    # This job runs CodeQL analysis for code quality and security checks.
+    # It is triggered by pull requests, specific comments ('/please-review', '/please-check-code-quality'),
+    # or when called directly from another workflow.
+    if: >
+      github.event_name == 'pull_request' ||
+      github.event.comment.body == '/please-review' ||
+      github.event.comment.body == '/please-check-code-quality' ||
+      github.event_name == 'workflow_call'
+    name: Analyze with CodeQL
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+      - name: Run ruff --no-fix
+        id: ruff
+        run:
+          pip install hatch~=1.12
+          hatch run check
+      - name: Run CodeQL init
+        uses: github/codeql-action/init@v3
+      - name: Run CodeQL autobuild
+        uses: github/codeql-action/autobuild@v3
+      - name: Run CodeQL analyze
+        id: codeql
+        uses: github/codeql-action/analyze@v3
+      - name: Log Ruff outcome
+        run: |
+          v=[[ ${{ steps.ruff.outcome }} == success ]]
+          echo "\
+            | **Ruff linting** \
+            | $( (( ${v} == 0 )) && echo ✅ || echo ⚠️ ) \
+            |\
+          " >> ${GITHUB_STEP_SUMMARY}
+      - name: Log CodeQL outcome
+        run: |
+          v=[[ ${{ steps.codeql.outcome }} == success ]]
+          echo "\
+            | **CodeQL linting** \
+            | $( (( ${v} == 0 )) && echo ✅ || echo ⚠️ ) \
+            |\
+          " >> ${GITHUB_STEP_SUMMARY}
+
+  security:
+    # This job runs security linters (Bandit) to check for security issues in the codebase.
+    # It is triggered by pull requests, specific comments ('/please-review', '/please-check-security'),
+    # or when called directly from another workflow.
+    if: >
+      github.event_name == 'pull_request' ||
+      github.event.comment.body == '/please-review' ||
+      github.event.comment.body == '/please-check-security' ||
+      github.event_name == 'workflow_call'
+    name: Run security linters
+    runs-on: ubuntu-latest
+    outputs:
+      test_result: ${{ steps.bandit.outcome }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run Bandit security linter
+        id: bandit
+        run: |
+          pip install hatch~=1.12
+          hatch run check-security
+          echo "\
+            | **Security checks** \
+            | $( (( $? == 0 )) && echo ✅ || echo ❌ ) \
+            |\
+          " >> ${GITHUB_STEP_SUMMARY}
+
+  docs:
+    # This job tests building the documentation to ensure there are no errors.
+    # It is triggered by pull requests and the comments '/please-review' and '/please-check-docs'.
+    if: >
+      github.event_name == 'pull_request' ||
+      github.event.comment.body == '/please-review' ||
+      github.event.comment.body == '/please-check-docs' ||
+      github.event_name == 'workflow_call'
+    name: Test building docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies and build docs
+        id: build_docs
+        run: |
+          pip install hatch~=1.12
+          # Use ⚠️ if there were warnings.
+          mkdocs_output=$( hatch run build-docs 2>&1 )
+          emoji=$(
+            (( $? != 0 ))
+            && echo "❌"
+            || ( echo "${mkdocs_output}" | grep --quiet "^WARNING  " && echo"⚠️" || echo "✅" )
+          )
+          echo "\
+            | **Documentation build** \
+            | ${emoji} \
+            |\
+          " >> ${GITHUB_STEP_SUMMARY}
+          echo "${mkdocs_output}"
+
+  links:
+    # This job runs a link checker (linkspector) to verify that all links in the documentation are valid.
+    # It is triggered by pull requests and the comments '/please-review' and '/please-check-links'.
+    # Failures will NOT cause the workflow run to fail.
+    # Note that it uses Reviewdog and will leave a PR review.
+    name: Check for broken links
+    if: >
+      github.event_name == 'pull_request' ||
+      github.event.comment.body == '/please-review' ||
+      github.event.comment.body == '/please-check-links' ||
+      github.event_name == 'workflow_call'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Run linkspector
+        id: linkspector
+        uses: umbrelladocs/action-linkspector@v1
+        with:
+          github_token: ${{ secrets.github_token }}
+          filter_mode: added
+          reporter: ${{ github.event_type == 'schedule' && 'github-check' || 'github-pr-review' }}
+      - name: Log
+        run: |
+          v=${{ steps.linkspector.outcome }}
+          echo "\
+            | Markdown links \
+            | $( [[ ${v} == success ]] && echo ✅ || echo ⚠️ ) \
+            |\
+          " >> ${GITHUB_STEP_SUMMARY}
+
+  quick-test:
+    # This job performs a quick test run for fast feedback.
+    # **IMPORTANT:** This job is ONLY triggered via /please-check-quickly !
+    if: github.event.comment.body == '/please-check-quickly'
+    name: Quick test on Ubuntu, Python 3.12
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run quick tests
+        run: |
+          pip install hatch~=1.12
+          hatch run test
+          echo "\
+            | Pytest on ubuntu-latest, Python 3.12 \
+            | $( (( $? == 0 )) && echo ✅ || echo ❌ ) \
+            |\
+          " >> ${GITHUB_STEP_SUMMARY}
